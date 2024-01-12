@@ -1,0 +1,20 @@
+CREATE EVENT deleting_mail
+ON SCHEDULE
+  EVERY 1 DAY
+  STARTS DATE_FORMAT(NOW(), '%Y-%m-%d 12:00:00')
+  ENDS DATE_FORMAT(NOW(), '%Y-%m-%d 12:02:00')
+DO
+  UPDATE mail_list
+  SET mail_status = 'delete'
+  WHERE date_of_sending <= CURRENT_DATE - INTERVAL 30 DAY
+    AND NOT (sender_trash_status = 'no' OR sender_trash_status = 'no');
+
+//
+
+CREATE EVENT deleting_mail
+ON SCHEDULE AT '2024-01-05 11:22:00'
+DO
+  UPDATE mail_list
+  SET mail_status = 'delete'
+  WHERE date_of_sending <= CURRENT_DATE - INTERVAL 30 DAY
+    AND NOT (sender_trash_status = 'no' OR sender_trash_status = 'no');

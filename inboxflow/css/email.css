@@ -1,0 +1,826 @@
+* {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+}
+
+.navigation-bar {
+    background-color: white;
+    width: 100%;
+    height: 40px;
+    display: flex;
+}
+
+.top-navigation-bar-logo img {
+    width: 80px;
+    height: 30px;
+    margin: 4px 40px;
+}
+
+.top-navigation-bar-logo {
+    width: 18%;
+    /* border-style: solid;
+    border-color: grey;
+    border-left: 0px;
+    border-top: 0px;
+    border-right: 1px;
+    border-bottom: 0px; */
+}
+
+.top-navigation-content {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.top-navigation-content .profile img {
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+}
+
+.profile {
+    margin-right: 45px;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 15% 85%;
+    height: 100vh;
+}
+
+
+
+.vertical-navigation-bar ul li {
+    color: grey;
+    text-align: left;
+    padding: 7px;
+    list-style: none;
+}
+
+.vertical-navigation-bar ul li button {
+    background-color: white;
+    /* color: grey; */
+    text-align: left;
+    height: 30px;
+    padding: 7.5px;
+    width: 150px;
+    outline: none;
+    border: none;
+}
+
+.vertical-navigation-bar ul li button:hover {
+    /* color: rgb(0, 0, 0); */
+    text-align: left;
+    padding: 7.5px;
+    background-color: rgb(235, 233, 255);
+    border-radius: 3px;
+    /* box-shadow: 3px 3px 6px rgb(215, 212, 255); */
+}
+
+.active {
+    color: white;
+    text-align: left;
+    padding: 7px;
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 41%, hsla(246, 100%, 83%, 1) 100%);
+    border-radius: 3px;
+    box-shadow: 3px 3px 6px rgb(215, 212, 255);
+}
+
+.active:hover {
+    background: linear-gradient(90deg, rgb(106, 89, 255) 41%, rgb(152, 140, 255) 100%);
+}
+
+.email-container {
+    display: grid;
+    grid-template-columns: 20% 85%;
+    background-color: whitesmoke;
+}
+
+.email-navigation-bar {
+    margin: 20px 10px 20px 20px;
+    background-color: white;
+    padding: 15px;
+    background-size: contain;
+}
+
+.email-navigation-bar a button {
+    margin: 7.5px 0px;
+    text-align: left;
+    width: 100%;
+    height: 30px;
+    /* color: grey; */
+    background: none;
+    border: none;
+    outline: none;
+}
+
+.email-navigation-bar a button:hover {
+    color: rgb(114, 98, 255);
+    border: none;
+    outline: none;
+    border-radius: 3px;
+}
+
+.option_active {
+    color: rgb(114, 98, 255);
+    border: none;
+    outline: none;
+    border-radius: 3px;
+}
+
+.email-options {
+    display: grid;
+    grid-template-columns: 90% 18px;
+    align-items: center;
+}
+
+.email-options .email-count {
+    color: white;
+    height: 20px;
+    border-radius: 100%;
+    margin: 0px -1px;
+}
+
+.mail-list {
+    margin: 20px 20px 20px 10px;
+    background-color: white;
+    width: 91%;
+}
+
+.mail-list-options {
+    display: flex;
+    justify-content: space-between;
+    margin: 19px;
+    align-items: center;
+}
+
+.mail-list-options input[type="submit" i] {
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 41%, hsla(246, 100%, 83%, 1) 100%);
+    width: 90px;
+    margin: 4px 0px;
+    margin-right: 7px;
+    height: 30px;
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    color: white;
+}
+
+.mail-list-options input[type="submit" i]:hover {
+    box-shadow: 3px 3px 6px rgb(215, 212, 255);
+    background: linear-gradient(90deg, rgb(106, 89, 255) 41%, rgb(152, 140, 255) 100%);
+}
+
+.mail-list-options input[type="search" i] {
+    width: 250px;
+    height: 30px;
+    border-radius: 3px;
+    border-width: 1px;
+    padding: 0px 10px;
+    outline: none;
+}
+
+.compose-btn a button {
+    width: 100%;
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 41%, hsla(246, 100%, 83%, 1) 100%);
+    height: 30px;
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    color: white;
+    text-align: center;
+}
+
+.compose-btn a button:hover {
+    color: white;
+    box-shadow: 3px 3px 6px rgb(215, 212, 255);
+    background: linear-gradient(90deg, rgb(106, 89, 255) 41%, rgb(152, 140, 255) 100%);
+}
+
+.email-options p {
+    text-align: center;
+    font-size: 12px;
+    padding: 2.5px;
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 41%, hsla(246, 100%, 83%, 1) 100%);
+    border-radius: 100%;
+    margin: 0px 1%;
+}
+
+.email_form label {
+    color: grey;
+    font-size: small;
+}
+
+.email_form {
+    margin: 15px;
+}
+
+.email_form input[type="submit" i],
+input[type="reset" i] {
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 41%, hsla(246, 100%, 83%, 1) 100%);
+    margin: 7.5px 0px;
+    margin-right: 15px;
+    width: 100px;
+    height: 30px;
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    color: white;
+}
+
+.email_form input[type="submit" i]:hover,
+input[type="reset" i]:hover {
+    background: linear-gradient(90deg, rgb(106, 89, 255) 41%, rgb(152, 140, 255) 100%);
+}
+
+.email_form input[type="text" i] {
+    width: 97%;
+    height: 30px;
+    border-style: solid;
+    border-color: grey;
+    border-radius: 3px;
+    border-width: 1px;
+    padding: 0px 10px;
+    outline: none;
+    border-color: grey;
+}
+
+.cc_bcc button {
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 41%, hsla(246, 100%, 83%, 1) 100%);
+    border: none;
+    width: 90px;
+    height: 30px;
+    border-radius: 3px;
+}
+
+.cc_bcc button a {
+    color: white;
+}
+
+
+textarea {
+    resize: none;
+    width: 97%;
+    height: 230px;
+    border-radius: 3px;
+    border-width: 1px;
+    padding: 10px 10px;
+    outline: none;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+/* .mail-line:hover {
+    outline-style: solid;
+    outline-color: rgb(238, 238, 238);
+} */
+
+tr {
+    height: 35px;
+}
+
+table tr:nth-child(odd) {
+    background-color: rgb(235, 233, 255);
+}
+
+td a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.archive {
+    margin-left: 20px;
+    vertical-align: middle;
+}
+
+.star {
+    margin: -4.5px 10px;
+    visibility: hidden;
+    font-size: 20px;
+    cursor: pointer;
+    vertical-align: top;
+}
+
+.stared {
+    margin: -4.5px 10px;
+    visibility: hidden;
+    font-size: 20px;
+    cursor: pointer;
+    vertical-align: top;
+}
+
+.star:before {
+    content: "\2606";
+    position: absolute;
+    visibility: visible;
+    color: rgb(82, 82, 82);
+}
+
+.star:checked:before {
+    content: "\2605";
+    position: absolute;
+    color: rgb(114, 98, 255);
+}
+
+.stared:before {
+    content: "\2605";
+    position: absolute;
+    visibility: visible;
+    color: rgb(114, 98, 255);
+}
+
+.stared:checked:before {
+    content: "\2606";
+    position: absolute;
+    color: rgb(82, 82, 82);
+}
+
+.chat-container {
+    background-color: whitesmoke;
+}
+
+.chat-container .chat-content {
+    background-color: white;
+    margin: 20px;
+    width: 100%;
+    height: 100vh;
+}
+
+.chat-container .chat-content h2 {
+    text-align: center;
+}
+
+.profile-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background-color: whitesmoke;
+}
+
+.profile_picture {
+    background-color: white;
+    margin: 20px 0px 20px 20px;
+    text-align: center;
+    padding: 10%;
+    /* display: flex;
+    justify-content: center;
+    align-items: center; */
+}
+
+.profile_picture h3 {
+    padding: 13px 30px;
+    /* margin:13px; */
+    border-radius: 5px;
+    font-weight: lighter;
+    background-color: rgb(235, 233, 255);
+}
+
+.profile_picture .log-out input[type='submit' i] {
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 41%, hsla(246, 100%, 83%, 1) 100%);
+    margin: 7.5px 0px;
+    width: 100px;
+    height: 30px;
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    color: white;
+}
+
+.profile_picture img {
+    border-radius: 100%;
+    width: 80%;
+    height: 80%;
+    margin: 15% 5%;
+}
+
+.user_details {
+    background-color: white;
+    margin: 20px 20px 20px 0px;
+    padding: 10% 20% 0% 0%;
+    line-height: 25px;
+}
+
+.user_details input[type="text" i] {
+    width: 97%;
+    height: 30px;
+    border-style: solid;
+    border-width: 0px 0px 1px 0px;
+    border-color: grey;
+    padding: 0px 10px;
+    outline: none;
+    border-color: grey;
+}
+
+.user_details input[type="date" i] {
+    width: 97%;
+    height: 30px;
+    border-style: solid;
+    border-width: 0px 0px 1px 0px;
+    border-color: grey;
+    padding: 0px 10px;
+    outline: none;
+    border-color: grey;
+}
+
+.user_details input[type="submit" i] {
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 41%, hsla(246, 100%, 83%, 1) 100%);
+    margin: 7.5px 20px 7.5px 0px;
+    width: 100px;
+    height: 30px;
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    color: white;
+}
+
+.user_details label {
+    color: grey;
+    font-size: 13px;
+}
+
+.mail-display {
+    margin: 20px;
+    width: 98%;
+    line-height: 30px;
+    font-size: 13px;
+    height: 100vh;
+    overflow-y: scroll;
+}
+
+.mail-display-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 99%;
+}
+
+.mail-display input[type="text" i] {
+    width: 95%;
+    height: 30px;
+    border-style: solid;
+    border-color: grey;
+    border-width: 0px 0px 1px 0px;
+    padding: 0px 10px;
+    outline: none;
+    border-color: grey;
+}
+
+.mail-display textarea {
+    width: 95%;
+}
+
+.mail-display label {
+    background-color: rgb(235, 233, 255);
+    color: rgb(87, 87, 87);
+    border-radius: 5px;
+    padding: 3px;
+}
+
+.mail-display a,
+input[type="submit"] {
+    border-style: solid;
+    border-width: 1.5px;
+    border-color: rgb(114, 98, 255);
+    background-color: white;
+    margin: 0px 10px 7.5px 0px;
+    /* width: 80px; */
+    padding: 5px 16px;
+    height: 30px;
+    outline: none;
+    border-radius: 3px;
+    color: rgb(114, 98, 255);
+    cursor: pointer;
+}
+
+.dashboard-container {
+    background-color: whitesmoke;
+}
+
+.dashboard-content {
+    background-color: white;
+    height: 100vh;
+    margin: 20px 20px 20px 20px;
+    color: black;
+    padding: 20px;
+}
+
+.dashboard-content p {
+    background-color: none;
+    color: black
+}
+
+.dashboard-counts {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    justify-items: center;
+    text-align: center;
+}
+
+.admin-dashboard-counts {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    justify-items: center;
+    text-align: center;
+}
+
+.report h4 {
+    color: rgb(132, 132, 132);
+    text-align: center;
+}
+
+.dashboard-count1,
+.dashboard-count2,
+.dashboard-count3,
+.dashboard-count4,
+.dashboard-count5 {
+    margin: 20px;
+    background-color: rgb(235, 233, 255);
+    height: 100px;
+    width: 60%;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+    box-shadow: 5px 5px 10px whitesmoke;
+}
+
+.dashboard-count1 h3,
+.dashboard-count2 h3,
+.dashboard-count3 h3,
+.dashboard-count4 h3,
+.dashboard-count5 h3 {
+    margin: 15px;
+}
+
+.super-admin-login {
+    margin: 5% 30%;
+    width: 50%;
+    height: 50vh;
+    text-align: center;
+    vertical-align: middle;
+    border-style: solid;
+    border-color: whitesmoke;
+    border-radius: 20px;
+    box-shadow: 3px 3px 3px 3px whitesmoke;
+}
+
+.super-admin-login h4 {
+    margin: 5% 20%;
+    padding: 1% 0%;
+    border-radius: 5px;
+    background-color: rgb(235, 233, 255);
+}
+
+.super-admin-login input[type="text" i],
+input[type="password" i] {
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 3px;
+    width: 100%;
+    height: 30px;
+    padding-left: 10px;
+    outline: none;
+}
+
+.super-admin-login form {
+    margin: 5% 15%;
+    line-height: 20px;
+}
+
+.super-admin-login label {
+    color: rgb(136, 136, 136);
+    font-size: 14px;
+}
+
+.super-admin-login input[type="submit" i] {
+    color: white;
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 41%, hsla(246, 100%, 83%, 1) 100%);
+    width: 150px;
+    margin-right: 10px;
+    height: 25px;
+    outline: none;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.super-admin-login input[type="submit" i]:hover {
+    box-shadow: 3px 3px 6px rgb(215, 212, 255);
+}
+
+.super-admin-login input[type="reset" i] {
+    color: rgb(255, 255, 255);
+    background-color: white;
+    width: 150px;
+    margin-right: 10px;
+    height: 25px;
+    outline: none;
+    border: solid;
+    border-width: 1px;
+    border-color: rgb(114, 98, 255);
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.super-admin-login input[type="reset" i]:hover {
+    box-shadow: 3px 3px 6px rgb(215, 212, 255);
+}
+
+.user_list td {
+    padding: 5px 7px;
+}
+
+.page {
+    color: white;
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 61%, hsla(246, 100%, 83%, 1) 100%);
+    border-radius: 2px;
+    margin: 5px;
+    width: 20px;
+    border-style: none;
+    padding: 4px;
+    text-align: center;
+}
+
+.alert-message {
+    background-color: rgb(235, 233, 255);
+    color: grey;
+    width: 400px;
+    text-align: center;
+    margin: 10% 27%;
+    height: 70px;
+    border-radius: 4px;
+}
+
+.alert-message p {
+    padding: 25px 10px;
+    color: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 61%, hsla(246, 100%, 83%, 1) 100%);
+}
+
+.message {
+    background-color: rgb(235, 233, 255);
+    color: grey;
+    width: 400px;
+    text-align: center;
+    margin: 10% 27%;
+    height: 70px;
+    border-radius: 4px;
+}
+
+.message p {
+    padding: 25px 10px;
+    color: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 61%, hsla(246, 100%, 83%, 1) 100%);
+}
+
+.table-container button {
+    width: 25px;
+    height: 25px;
+    margin-right: 10px;
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 61%, hsla(246, 100%, 83%, 1) 100%);
+    border: none;
+    border-radius: 2px;
+}
+
+.table-container button a {
+    padding: 7px;
+    color: white
+}
+
+.page_numbers button {
+    margin: 0px 0px 0px 20px;
+    width: 25px;
+    height: 25px;
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 61%, hsla(246, 100%, 83%, 1) 100%);
+    border: none;
+    border-radius: 3px;
+}
+
+.page_numbers a {
+    color: white;
+    padding: 5px 7px;
+}
+
+.icon {
+    width: 14px;
+    height: 14px;
+    margin: 1px 5px;
+    vertical-align: bottom;
+}
+
+.result-page-numbers {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.results {
+    margin: 3px 20px;
+    color: grey;
+}
+
+.access-container {
+    background-color: whitesmoke;
+}
+
+.access-content {
+    margin: 20px;
+    padding: 20px;
+    background-color: white;
+    height: 100vh;
+}
+
+.access-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.access-options .search input[type="search" i] {
+    height: 30px;
+    padding: 5px;
+    border-color: grey;
+    border-radius: 3px;
+    border-width: 1px;
+}
+
+.access-options .search input[type="date" i] {
+    height: 20px;
+    padding: 5px 5px;
+    border-color: grey;
+    border-radius: 3px;
+    border-width: 1px;
+}
+
+.access-options label {
+    color: grey;
+    font-size: 12px;
+}
+
+.access-options input[type="submit" i] {
+    background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 41%, hsla(246, 100%, 83%, 1) 100%);
+    color: white;
+    border-radius: 4px;
+    border: none;
+    margin: 0px 0px 7.5px 10px;
+    /* width: 130px; */
+}
+
+.access-options input[type="submit" i]:hover {
+    box-shadow: 3px 3px 6px rgb(215, 212, 255);
+    background: linear-gradient(90deg, rgb(106, 89, 255) 41%, rgb(152, 140, 255) 100%);
+}
+
+.access-table tr:nth-child(odd) {
+    background-color: rgb(235, 233, 255);
+}
+
+.email-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.email-buttons input[type="file" i] {
+    margin: 10px;
+    text-align: center;
+    display: none;
+}
+
+.email-buttons label {
+    background-color: white;
+    border-style: solid;
+    padding: 6px 20px;
+    border-color: rgb(114, 98, 255);
+    border-width: 1.5px;
+    color: rgb(114, 98, 255);
+    border-radius: 3px;
+    cursor: pointer;
+    /* margin: 10px; */
+}
+
+.attachment a {
+    background-color: rgb(227, 227, 227);
+    color: black;
+    padding: 20px;
+    border: none;
+    border-radius: 0px 0px 10px 0px;
+}
+
+.attachment img {
+    width: 30px;
+    height: 30px;
+    margin: -10px 10px -10px -5px;
+}
+
+.attachment-logo {
+    width: 20px;
+    height: 20px;
+    margin: -10px 5px -5px -5px;
+}

@@ -1,0 +1,31 @@
+//Inbox query
+
+select * from mail_list where (reciever_email='{$email}' and mail_status='sent') and (reciever_archived_status is null and reciever_trash_status is null and spam is null)
+
+//unread query
+
+select * from mail_list where (reciever_email='{$email}' and mail_status='sent') and (reciever_archived_status is null and reciever_trash_status is null )and (spam is null and inbox_status='unread')
+
+//sent query
+
+select * from mail_list where (sender_email='{$email}' and mail_status='sent') and (sender_archived_status is null and sender_trash_status is null)
+
+//draft query
+
+select * from mail_list where (sender_email='{$email}'and mail_status='draft')
+
+//starred query
+
+select * from mail_list where (reciever_starred_status='{$user_details_result['username']}' or sender_starred_status='{$user_details_result['username']}') and (reciever_trash_status is null or sender_trash_status is null)
+
+//archived query
+
+select * from mail_list where (reciever_archived_status='{$user_details_result['username']}' or sender_archived_status='{$user_details_result['username']}') and (reciever_trash_status is null and sender_trash_status is null)
+
+//trash query
+
+select * from mail_list where reciever_trash_status='{$user_details_result['username']}' or sender_trash_status='{$user_details_result['username']}'
+
+//spam query
+
+select * from mail_list where (reciever_email='$email' and mail_status='sent') and (reciever_archived_status is null and reciever_trash_status is null) and spam='yes'

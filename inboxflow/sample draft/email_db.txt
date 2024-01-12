@@ -1,0 +1,61 @@
+-- Table to store users
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table to store emails
+CREATE TABLE emails (
+    email_id INT PRIMARY KEY AUTO_INCREMENT,
+    sender_id INT,
+    subject VARCHAR(255),
+    body TEXT,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_starred BOOLEAN DEFAULT 0,
+    sender_starred BOOLEAN DEFAULT 0,
+    receiver_starred BOOLEAN DEFAULT 0,
+    is_archived BOOLEAN DEFAULT 0,
+    is_trashed BOOLEAN DEFAULT 0,
+    FOREIGN KEY (sender_id) REFERENCES users(user_id)
+);
+
+-- Table to store recipients (TO, CC, BCC)
+CREATE TABLE recipients (
+    recipient_id INT PRIMARY KEY AUTO_INCREMENT,
+    email_id INT,
+    user_id INT,
+    type ENUM('TO', 'CC', 'BCC') NOT NULL,
+    FOREIGN KEY (email_id) REFERENCES emails(email_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Table to store attachments
+CREATE TABLE attachments (
+    attachment_id INT PRIMARY KEY AUTO_INCREMENT,
+    email_id INT,
+    file_name VARCHAR(255),
+    file_path VARCHAR(255),
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (email_id) REFERENCES emails(email_id)
+);
+
+-- Table to store labels
+CREATE TABLE labels (
+    label_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    name VARCHAR(50),
+    color VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Table to associate emails with labels (many-to-many relationship)
+CREATE TABLE email_labels (
+    email_id INT,
+    label_id INT,
+    PRIMARY KEY (email_id, label_id),
+    FOREIGN KEY (email_id) REFERENCES emails(email_id),
+    FOREIGN KEY (label_id) REFERENCES labels(label_id)
+);
