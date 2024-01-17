@@ -230,7 +230,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             <td><input type="checkbox" name="login_activity_access[]" value="<?= $admin_details_result['emp_id'] ?>" form="access_permission"></td>
             <td><input type="checkbox" name="access_page_access[]" value="<?= $admin_details_result['emp_id'] ?>" form="access_permission"></td>
         </tr>
-<?php
+    <?php
             }
         }
         if (isset($_GET['admin_access_search'])) {
@@ -275,4 +275,53 @@ function user_list($page, $query = "select * from user_details", $search_content
             $ip = $_SERVER['REMOTE_ADDR'];
         }
         return $ip;
+    }
+    function user_query($page, $query = "select * from user_queries")
+    {
+        // require "config.php";
+        global $conn;
+
+        $results_per_page = 10;
+        $result = $conn->query($query);
+        $number_of_result = $result->num_rows;
+        $number_of_page = ceil($number_of_result / $results_per_page);
+        if (!isset($_GET['page_no'])) {
+            $page_no = 1;
+        } else {
+            $page_no = $_GET['page_no'];
+        }
+        $page_first_result = ($page_no - 1) * $results_per_page;
+        $user_query_query = "$query LIMIT " . $page_first_result . ',' . $results_per_page;
+        $user_query_output = $conn->query($user_query_query);
+        if ($user_query_output->num_rows > 0) {
+            while ($user_query_result = $user_query_output->fetch_assoc()) {
+    ?>
+        <tr style="text-align:center;">
+            <td><input type="checkbox" name="query_status[]" value="<?= $user_query_result['id'] ?>" form="query_status"></td>
+            <td><?= $user_query_result['username'] ?></td>
+            <td><?php
+                echo substr($user_query_result['query'], 0, 25);
+                if (strlen($user_query_result['query']) > 25) {
+                    echo "...";
+                }
+                ?></td>
+            <td><?= $user_query_result['status'] ?></td>
+            <td><?= $user_query_result['reviewed_by'] ?></td>
+            <td><?= $user_query_result['query_date'] ?></td>
+        </tr>
+<?php
+            }
+        }
+        if (isset($_GET['query_no'])) {
+            $query_parameter = 'query_no=' . $_GET['query_no'];
+        } else {
+            $query_parameter = 'page=Queries';
+        }
+        echo '<div class="admin_page_numbers">';
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=1"><<</a></button>';
+        for ($page_no = 1; $page_no <= $number_of_page; $page_no++) {
+            echo '<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
+        }
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>></a></button>';
+        echo "</div><br><hr><br>";
     }

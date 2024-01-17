@@ -7,7 +7,9 @@ ini_set('display_errors', 1);
 require_once '../config.php';
 require_once "../user/email_function.php";
 // echo getIPAddress();
-if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 900)) {
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 10)) {
+    $logout_query="update user_login_log set logout_time=current_timestamp where login_id='{$_SESSION['login_id']}';";
+    $conn->query($logout_query);
     unset($_SESSION['token_id']);
 }
 //checks for token_id in session

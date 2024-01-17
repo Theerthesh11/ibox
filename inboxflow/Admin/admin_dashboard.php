@@ -1,19 +1,21 @@
 <?php
 session_start();
 //error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+error_reporting(E_ALL ^ E_WARNING);
+ini_set('display_errors', 0);
 //including required files
 require_once "../admin/admin_functions.php";
 require_once "../config.php";
 //checking for token in session
 $token_id = isset($_SESSION['admin_token_id']) ? $_SESSION['admin_token_id'] : header("location:admin_login.php");
+// $_SESSION['current_page']='';
 //fetching record for that token id
 $admin_details_query = "select * from admin_details where token_id='$token_id';";
 $admin_details_output = $conn->query($admin_details_query);
 if ($admin_details_output->num_rows > 0) {
     $admin_details = $admin_details_output->fetch_assoc();
     $emp_id = $admin_details['emp_id'];
+    $username = $admin_details['username'];
     $login_time = isset($_SESSION['login_time']) ? $_SESSION['login_time'] : header("location:admin_login.php");
 } else {
     header("location:admin_login.php");
@@ -66,10 +68,11 @@ if ($admin_details_output->num_rows > 0) {
                 <!--page value sent to url when clicked-->
                 <li><a href="?page=I-Box Dashboard"><button <?= (isset($_GET['page']) && $_GET['page'] === 'I-Box Dashboard') || ($_SESSION['current_page'] == 'I-Box Dashboard' && !isset($_GET['page'])) ? 'class="active"' : '' ?>>I-Box Dashboard</button></a></li>
                 <li><a href="?page=Admin List"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Admin List') || ($_SESSION['current_page'] == 'Admin List' && !isset($_GET['page'])) ? 'class="active"' : '' ?>>Admin list</button></a></li>
-                <li><a href="?page=User List"><button <?= (isset($_GET['page']) && $_GET['page'] === 'User List') || ($_SESSION['current_page'] == 'User List' && !isset($_GET['page'])) ? '" class="active"' : '' ?>>User list</button></a></li>
+                <li><a href="?page=User List"><button <?= (isset($_GET['page']) && $_GET['page'] === 'User List') || ($_SESSION['current_page'] == 'User List' && !isset($_GET['page'])) ? 'class="active"' : '' ?>>User list</button></a></li>
                 <li><a href="?page=Login Activity"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Login Activity') || ($_SESSION['current_page'] == 'Login Activity' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Login activity</button></a></li>
                 <li><a href="?page=Admin"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Admin') || ($_SESSION['current_page'] == 'Admin' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Admin</button></a></li>
                 <li><a href="?page=Access"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Access') || ($_SESSION['current_page'] == 'Access' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Access</button></a></li>
+                <li><a href="?page=Queries"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Queries') || ($_SESSION['current_page'] == 'Queries' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Queries</button></a></li>
             </ul>
         </div>
         <?php
@@ -287,13 +290,13 @@ if ($admin_details_output->num_rows > 0) {
                             if (isset($_POST['enable_user'])) {
                                 $enable_user = !empty($_POST['delete_access']) ? $_POST['delete_access'] : array();
                                 foreach ($enable_user as $username) {
-                                    $enable_user_query = "update user_details set user_status='enable' where username='$username';";
+                                    $enable_user_query = "update user_details set user_status='enable',password_attempt=4,forgot_pass_attempt=2,token_attempt=1 where username='$username';";
                                     $enable_user_output = $conn->query($enable_user_query);
                                 }
                             } elseif (isset($_POST['disable_user'])) {
                                 $disable_user = !empty($_POST['delete_access']) ? $_POST['delete_access'] : array();
                                 foreach ($disable_user as $username) {
-                                    $disable_user_query = "update user_details set user_status='disable' where username='$username';";
+                                    $disable_user_query = "update user_details set user_status='disable',password_attempt=0,forgot_pass_attempt=0,token_attempt=0 where username='$username';";
                                     $disable_user_output = $conn->query($disable_user_query);
                                 }
                             }
@@ -527,7 +530,7 @@ if ($admin_details_output->num_rows > 0) {
                                         </div>
                                         <!--grant access and restrict access buttons-->
                                         <div class="grant-access">
-                                            <form action="admin_dashboard.php?page=Access&page_no=<?= $page_no ?>" method="post" form="access_permission">
+                                            <form action="admin_dashboard.php?page=Access&page_no=<?= $page_no ?>" method="post" id="access_permission">
                                                 <input type="submit" name="grant_access" value="Grant Access">
                                                 <input type="submit" name="restrict_access" value="Restrict Access">
                                             </form>
@@ -575,7 +578,60 @@ if ($admin_details_output->num_rows > 0) {
                                 ?>
                             </div>
                         </div>
-                <?php
+                    <?php
                             break;
-                    }
-                ?>
+                        case 'Queries':
+                            $_SESSION['current_page'] = "Queries";
+                    ?>
+                        <div class="dashboard-container">
+                            <div class="dashboard-content">
+                                <?php
+                                //checks if admin has access to this page
+                                //1 means access is given 0 means access restricted
+                                ?>
+                                <div class="access-options">
+                                    <div class="search">
+                                        <form action="admin_dashboard.php" method="get">
+                                            <input type="search" name="query_no" placeholder="EST001" value=<?= isset($_GET['query_no']) ? $_GET['query_no'] : "" ?>>
+                                            <input type="submit" name="query_search_btn" value="Search">
+                                        </form>
+                                    </div>
+                                    <div>
+                                        <form action="admin_dashboard.php?page=Queries&page_no=<?= $page_no ?>" method="post" id="query_status">
+                                            <input type="submit" name="reviewed" value="reviewed">
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="user_table">
+                                    <table class="user_list">
+                                        <tr style="text-align: center;color:white; background:hsla(246, 100%, 73%, 1);box-shadow:3px 3px 6px rgb(215, 212, 255);">
+                                            <th style="width: 5%;"></th>
+                                            <th style="width: 10%;">USERNAME</th>
+                                            <th style="width: 25%;">QUERY</th>
+                                            <th style="width: 20%;">STATUS</th>
+                                            <th style="width: 20%;">REVIEWED BY</th>
+                                            <th style="width: 20%;">DATE</th>
+                                        </tr>
+                                <?php
+                                if (isset($_GET['query_no'])) {
+                                    $query_search =  !empty($_GET['query_no']) ? sanitizing($_GET['query_no']) : "";
+                                    $admin_search_query = "select * from user_queries where id like '%$query_search%'";
+                                    $admin_search_output = $conn->query($admin_search_query);
+                                    if ($admin_search_output->num_rows > 0) {
+                                        user_query($page, $admin_search_query);
+                                    } else {
+                                        user_query($page);
+                                    }
+                                } else {
+                                    user_query($page);
+                                }
+                                if (isset($_POST['reviewed'])) {
+                                    $checkbox_value = !empty($_POST['query_status']) ? $_POST['query_status'] : "";
+                                    foreach ($checkbox_value as $id) {
+                                        $reviewed_query = "update user_queries set reviewed_by='$username',reviewed_on=current_timestamp,status='REVIEWED' where id='$id';";
+                                        $conn->query($reviewed_query);
+                                    }
+                                }
+                                break;
+                        }
+                                ?>

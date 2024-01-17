@@ -227,9 +227,9 @@ if (isset($_POST['send']) || isset($_POST['send_mail']) && $_GET['option'] == "D
             // End the boundary
             $body .= "--boundary--";
             if (!empty($cc) && !empty($bcc)) {
-                $headers = 'From:' . $email . "\r\n" .
-                    'Reply-To: ' . $email . "\r\n" .
-                    'Cc:' . $cc . "\r\n";
+                $headers = 'From:' . $email . "\r\n";
+                $headers .= 'Reply-To: ' . $email . "\r\n";
+                $headers .= 'Cc:' . $cc . "\r\n";
                 $headers .= 'Bcc:' . $bcc . "\r\n";
             }
             $updated_by = $user_details_result['username']; //stores the username
@@ -283,6 +283,8 @@ if (isset($_POST['save'])) {
 }
 //logout button's code
 if (isset($_POST['logout'])) {
+    $logout_query = "update user_login_log set logout_time=current_timestamp where login_id='{$_SESSION['login_id']}';";
+    $conn->query($logout_query);
     unset($_SESSION['token_id']);
     header("location:user_login.php");
 }

@@ -1,6 +1,5 @@
 <?php
 session_start();
-$email_id_route = "https://accounts.google.com/lifecycle/steps/signup/name?continue=https://mail.google.com/mail/&dsh=S1711318677:1704439721809665&flowEntry";
 require_once "email_function.php";
 ?>
 <!DOCTYPE html>
@@ -29,24 +28,24 @@ require_once "email_function.php";
             </div>
             <div class="form">
                 <h2 style="text-align: center;">SIGN UP</h2>
-                <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                <form action="../user/registeration_login_page.php" method="post">
                     <label for="email">Email</label>
-                    <input type="email" name="email" id="email" placeholder=""><br><br>
+                    <input type="email" name="email" id="email" placeholder="" value="<?= isset($_POST['email']) && !isset($_POST['clear']) ? $_POST['email'] : '' ?>"><br><br>
                     <label for="name">Name</label>
-                    <input type="text" name="name" id="name" placeholder=""><br><br>
+                    <input type="text" name="name" id="name" placeholder="" value="<?= isset($_POST['name']) && !isset($_POST['clear']) ? $_POST['name'] : '' ?>"><br><br>
                     <label for="phone_no">Phone number</label>
-                    <input type="text" name="phone_no" id="phone_no" placeholder=""><br><br>
+                    <input type="text" name="phone_no" id="phone_no" placeholder="" value="<?= isset($_POST['phone_no']) && !isset($_POST['clear']) ? $_POST['phone_no'] : '' ?>"><br><br>
                     <label for="dateofbirth">DOB</label>
-                    <input type="date" name="dateofbirth" min="1960-01-01" max="2006-01-01" required><br><br>
+                    <input type="date" name="dateofbirth" min="1960-01-01" max="2006-01-01" value="<?= isset($_POST['dateofbirth']) && !isset($_POST['clear']) ? $_POST['dateofbirth'] : '' ?>" required><br><br>
                     <label for="username">User name</label>
-                    <input type="text" name="username" id="username" placeholder=""><br><br>
+                    <input type="text" name="username" id="username" placeholder="" value="<?= isset($_POST['username']) && !isset($_POST['clear']) ? $_POST['username'] : '' ?>"><br><br>
                     <label for="password">Password</label>
                     <input type="password" name="password" id="password" placeholder=""><br><br>
                     <label for="confirm-password">Confirm Password</label>
                     <input type="password" name="confirm-password" id="password" placeholder=""><br><br>
                     <div class="form-buttons">
                         <input type="submit" value="REGISTER" name="register">
-                        <input type="reset" value="CLEAR"><br><br>
+                        <input type="submit" name="clear" value="CLEAR" class="clear-btn"><br><br>
                     </div>
                     <?php
                     require_once '../config.php';
@@ -83,7 +82,7 @@ require_once "email_function.php";
                         }
                         if (!empty($_POST['phone_no'])) {
                             //validate phone_no
-                            if (preg_match("/^[0-9]{10}*$/", $_POST['phone_no'])) {
+                            if (preg_match("/^[0-9]{10}$/", $_POST['phone_no'])) {
                                 $phone_no = sanitizing($_POST['phone_no']);
                                 // echo $phone_no;
                             } else {
