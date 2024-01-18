@@ -25,8 +25,11 @@ $ip_address = getIPAddress();
             </div>
         </div>
         <div class="fraction_two">
+            <div class="nav-panel">
+                <a href="../user/user_login.php">SIGN IN</a>
+            </div>
             <div class="fraction_two_container">
-                <h2 style="text-align: center;">SIGN IN</h2>
+                <h2 style="text-align: center;">SUPPORT</h2>
                 <div class="form">
                     <form action="../user/user_complaint.php" method="post">
                         <label for="username">Username</label><br>
@@ -44,18 +47,22 @@ $ip_address = getIPAddress();
                             $user_name = sanitizing($_POST['username']);
                             $get_query = "select email from user_details where username='{$user_name}';";
                             $get_query_output = $conn->query($get_query);
-                            if ($get_query_output->num_rows >0) {
-                                $result=$get_query_output->fetch_assoc();
-                                $from_email=$result['email'];
+                            if ($get_query_output->num_rows > 0) {
+                                $result = $get_query_output->fetch_assoc();
+                                $from_email = $result['email'];
                             }
                         }
-                        if(!empty($_POST['query'])){
-                            $user_complaint=sanitizing($_POST['query']);
-                        }else{
-                            $user_complaint="";
+                        if (!empty($_POST['query'])) {
+                            $user_complaint = sanitizing($_POST['query']);
+                        } else {
+                            $user_complaint = "";
                         }
-                        $insert_query="insert into user_queries (username,query,query_date) values ('$user_name','$user_complaint',current_timestamp);";
-                        if($conn->query($insert_query)){
-                            echo '<h6 style="text-align: center; color:black;">Complaint raised</h6>';
+                        if (!empty($user_name) && !empty($user_complaint)) {
+                            $insert_query = "insert into user_queries (username,query,query_date) values ('$user_name','$user_complaint',current_timestamp);";
+                            if ($conn->query($insert_query)) {
+                                echo '<h6 style="text-align: center; color:black;">Complaint raised</h6>';
+                            }
+                        }else{
+                            echo '<h6 style="text-align: center; color:black;">Fill the complaint boxes</h6>';
                         }
                     }

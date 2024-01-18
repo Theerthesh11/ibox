@@ -33,12 +33,12 @@ require_once 'admin_functions.php';
                         <!--login form-->
                         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
                             <label for="username">Username</label><br>
-                            <input type="text" name="username" id="username"><br><br>
+                            <input type="text" name="username" id="username" value="<?=(!empty(sanitizing($_POST['username'])) && !isset($_POST['clear']))?sanitizing($_POST['username']):''?>"><br><br>
                             <label for="password">Password</label><br>
                             <input type="password" name="password" placeholder=""><br><br>
                             <div class="form-buttons">
                                 <input type="submit" name="login" value="LOGIN">
-                                <input type="reset" value="CLEAR">
+                                <input type="submit" value="CLEAR" name="clear" class="clear-btn">
                                 <h6>Click here to register as <a href="../Admin/admin_registeration_page.php">Admin</a></h6>
                         </form>
                         <?php

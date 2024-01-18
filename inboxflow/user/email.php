@@ -7,8 +7,8 @@ ini_set('display_errors', 1);
 require_once '../config.php';
 require_once "../user/email_function.php";
 // echo getIPAddress();
-if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 10)) {
-    $logout_query="update user_login_log set logout_time=current_timestamp where login_id='{$_SESSION['login_id']}';";
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 900)) {
+    $logout_query = "update user_login_log set logout_time=current_timestamp where login_id='{$_SESSION['login_id']}';";
     $conn->query($logout_query);
     unset($_SESSION['token_id']);
 }
@@ -406,7 +406,7 @@ $page_no = empty($_GET['page_no']) ? '1' : $_GET['page_no'];
                                     <label for="name">Name</label>
                                     <input type="text" id="name" name="name" value="<?= $user_details_result['name'] ?>" readonly><br><br>
                                     <label for="dob">Date of birth</label>
-                                    <input type="text" id="dob" name="dob" value="<?= $user_details_result['date_of_birth'] ?>" readonly><br><br>
+                                    <input type="text" id="dob" name="dob" value="<?= dateconvertion($user_details_result['date_of_birth'], "d-m-y") ?>" readonly><br><br>
                                     <label for="email">Email</label>
                                     <input type="text" id="email" name="email" value="<?= $user_details_result['email'] ?>" readonly><br><br>
                                     <label for="cell_number">Mobile number</label>

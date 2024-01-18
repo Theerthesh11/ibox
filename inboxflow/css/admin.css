@@ -123,7 +123,7 @@ input[type="password" i] {
     outline: none;
     border: solid;
     border-width: 1px;
-    border-color: rgb(114, 98, 255)9;
+    border-color: rgb(114, 98, 255);
     border-radius: 3px;
     cursor: pointer;
 }
@@ -134,6 +134,14 @@ input[type="password" i] {
 
 .user_list td {
     padding: 1px 7px;
+}
+
+.user_list td a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    color: black;
+    font-size: 15px;
 }
 
 .user_list input[type="submit" i] {
@@ -174,4 +182,51 @@ input[type="password" i] {
 .admin-alert-message p {
     padding: 25px 10px;
     color: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 61%, hsla(246, 100%, 83%, 1) 100%);
+}
+
+select {
+    height: 30px;
+    padding: 5px;
+    border-color: grey;
+    border-radius: 3px;
+    border-width: 1px;
+}
+
+select option {
+    height: 30px;
+    background-color: white;
+}
+
+.complaint-view-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin: 3% 0%;
+}
+
+.complaint-textbox input[type='text' i] {
+    width: 55%;
+    padding: 5px;
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-width: 1px;
+}
+
+.complaint-view-form label,
+.query label {
+    background-color: rgb(235, 233, 255);
+    color: rgb(87, 87, 87);
+    border-radius: 5px;
+    font-size: 13px;
+    padding: 8px;
+    width: 100px;
+}
+
+.query textarea {
+    width: 96%;
+    margin-top: 8px;
+}
+
+input[type="checkbox"][readonly] {
+    pointer-events: none;
 }

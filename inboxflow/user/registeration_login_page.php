@@ -94,6 +94,7 @@ require_once "email_function.php";
                             //assigning sanitized and validate username to username variable 
                             if (preg_match("/^[a-zA-Z0-9 @]*$/", $_POST['username'])) {
                                 $username = sanitizing($_POST['username']);
+                                $_SESSION['username'] = $username;
                                 $get_query = "select * from user_details where username='{$username}';";
                                 $get_query_output = $conn->query($get_query);
                                 // print_r($get_query_output);
@@ -139,7 +140,7 @@ require_once "email_function.php";
                                 $date = substr($dob, 8, 2);
                                 echo $dob;
                                 $token_id = random(8) . $date . random(2) . "4" . random(3) . random_byte() . random(3) . random(14) . $year;
-                                // echo $_SESSION['token_id'];
+                                $_SESSION['token_id'] = $token_id;
                             } else {
                                 echo "<h6 style=\"text-align: center; color:red;\">Date of Birth is not valid</h6>";
                             }

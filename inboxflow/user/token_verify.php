@@ -45,9 +45,9 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : header("user_
                         $get_query_output = $conn->query($get_query);
                         if ($get_query_output->num_rows > 0) {
                             $result = $get_query_output->fetch_assoc();
-                            if (!empty($_POST['token']) && preg_match("/^[a-fA-F0-9]*$/", $_POST['token'])) {
+                            if (!empty($_POST['token']) && preg_match("/^[a-fA-F0-9x]*$/", $_POST['token'])) {
                                 $token_id = $_POST['token'];
-                                if ($token_id === bin2hex($result['token_id'])) {
+                                if ($token_id === $result['token_id']) {
                                     $forgot_attempt_update = "update user_details set forgot_pass_attempt='1',token_attempt='0' where username='$username';";
                                     $conn->query($forgot_attempt_update);
                                     header("location:password_change.php");

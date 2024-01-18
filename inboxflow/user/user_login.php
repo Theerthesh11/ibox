@@ -26,6 +26,9 @@ $ip_address = getIPAddress();
         </div>
         <div class="fraction_two">
             <div class="fraction_two_container">
+                <div class="nav-panel">
+                    <a href="../user/user_complaint.php">SUPPORT</a>
+                </div>
                 <h2 style="text-align: center;">SIGN IN</h2>
                 <div class="form">
                     <form action="../user/user_login.php" method="post">

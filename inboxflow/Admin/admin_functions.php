@@ -1,5 +1,17 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
 require_once "../config.php";
+function dateconvertion($numericdate, $output_format = "d M")
+{
+    if (!is_null($numericdate)) {
+        $dateString = $numericdate;
+        $date = new DateTime($dateString);
+        $formattedDate = $date->format($output_format);
+        return $formattedDate;
+    }
+    return;
+}
 //function returns the total mails sent using inboxflow
 function total_ibox_mail($addition = "")
 {
@@ -61,8 +73,8 @@ function user_list($page, $query = "select * from user_details", $search_content
             <td style="width:18%;"><?= $user_details_result['email'] ?></td>
             <td style="width:11%;text-align:center"><?= $user_details_result['user_status'] ?></td>
             <td style="width:11%;text-align:center"><?= $user_details_result['phone_no'] ?></td>
-            <td style="width:11%;text-align:center"><?= $user_details_result['created_on'] ?></td>
-            <td style="width:13%;text-align:center"><?= $user_details_result['last_login'] ?></td>
+            <td style="width:11%;text-align:center"><?= dateconvertion($user_details_result['created_on'], "d M y") ?></td>
+            <td style="width:13%;text-align:center"><?= dateconvertion($user_details_result['last_login'], "d M y h:i") ?></td>
             <?php
             if (isset($_POST['view_count']) && $_POST['record_id'] == bin2hex($user_details_result['token_id'])) {
             ?>
@@ -117,14 +129,14 @@ function user_list($page, $query = "select * from user_details", $search_content
             while ($admin_details_result = $admin_details_output->fetch_assoc()) {
     ?>
         <tr>
+            <td style="text-align: center;"><input type="checkbox" name="admin_id[]" value="<?= $admin_details_result['emp_id'] ?>"></td>
             <td style="text-align: center;"><?= $admin_details_result['emp_id'] ?></td>
             <td><?= $admin_details_result['name'] ?></td>
             <td><?= $admin_details_result['email'] ?></td>
             <td style="text-align: center;"><?= $admin_details_result['role'] ?></td>
             <td style="text-align: center;"><?= $admin_details_result['phone_no'] ?></td>
-            <td style="text-align: center;"><?= $admin_details_result['date_of_birth'] ?></td>
-            <td style="text-align: center;"><?= $admin_details_result['created_on'] ?></td>
-            <td style="text-align: center;"><?= $admin_details_result['last_login'] ?></td>
+            <td style="text-align: center;"><?= dateconvertion($admin_details_result['created_on'], "d M y") ?></td>
+            <td style="text-align: center;"><?= dateconvertion($admin_details_result['last_login'], "d M y h:i") ?></td>
         </tr>
     <?php
             }
@@ -166,8 +178,45 @@ function user_list($page, $query = "select * from user_details", $search_content
             <td><?= $login_activity_result['emp_id'] ?></td>
             <td><?= $login_activity_result['username'] ?></td>
             <td><?= $login_activity_result['role'] ?></td>
-            <td><?= $login_activity_result['login_time'] ?></td>
-            <td><?= $login_activity_result['logout_time'] ?></td>
+            <td style="text-align:center;"><?= dateconvertion($login_activity_result['login_time'], "d M y h:i:s") ?></td>
+            <td style="text-align:center;"><?= dateconvertion($login_activity_result['logout_time'], "d M y h:i:s") ?></td>
+        <?php
+            }
+        } else {
+            echo "No results found";
+        }
+
+        echo '<div class="admin_page_numbers">';
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?page=' . $page . '&page_no=1"><<</a></button>';
+        for ($page_no = 1; $page_no <= $number_of_page; $page_no++) {
+            echo '<button><a href = "admin_dashboard.php?page=' . $page . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
+        }
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?page=' . $page . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
+        echo "</div><br><hr><br>";
+    }
+    function user_login_activity($page, $query)
+    {
+        global $conn;
+        $results_per_page = 10;
+        $result = $conn->query($query);
+        $number_of_result = $result->num_rows;
+        $number_of_page = ceil($number_of_result / $results_per_page);
+        if (!isset($_GET['page_no'])) {
+            $page_no = 1;
+        } else {
+            $page_no = $_GET['page_no'];
+        }
+        $page_first_result = ($page_no - 1) * $results_per_page;
+        $user_login_query = "$query LIMIT " . $page_first_result . ',' . $results_per_page;
+        $user_login_output = $conn->query($user_login_query);
+        if ($user_login_output->num_rows > 0) {
+            while ($user_login_result = $user_login_output->fetch_assoc()) {
+        ?>
+        <tr>
+            <td><?= $user_login_result['username'] ?></td>
+            <td><?= $user_login_result['login_status'] ?></td>
+            <td style="text-align:center;"><?= dateconvertion($user_login_result['login_time'], "d M y h:i:s") ?></td>
+            <td style="text-align:center;"><?= dateconvertion($user_login_result['logout_time'], "d M y h:i:s") ?></td>
         <?php
             }
         } else {
@@ -295,19 +344,30 @@ function user_list($page, $query = "select * from user_details", $search_content
         $user_query_output = $conn->query($user_query_query);
         if ($user_query_output->num_rows > 0) {
             while ($user_query_result = $user_query_output->fetch_assoc()) {
+                $href_path = '<a href="admin_dashboard.php?page=Queries&page_no=' . $page_no . '&id=' . $user_query_result['id'] . '">';
     ?>
         <tr style="text-align:center;">
-            <td><input type="checkbox" name="query_status[]" value="<?= $user_query_result['id'] ?>" form="query_status"></td>
-            <td><?= $user_query_result['username'] ?></td>
-            <td><?php
-                echo substr($user_query_result['query'], 0, 25);
-                if (strlen($user_query_result['query']) > 25) {
-                    echo "...";
+            <?php
+                if ($user_query_result['status'] == "REVIEWED") {
+                    $readonly = "readonly";
+                } else {
+                    $readonly = "";
                 }
-                ?></td>
-            <td><?= $user_query_result['status'] ?></td>
-            <td><?= $user_query_result['reviewed_by'] ?></td>
-            <td><?= $user_query_result['query_date'] ?></td>
+            ?>
+            <td><input type="checkbox" name="query_status[]" value="<?= $user_query_result['id'] ?>" form="query_status" <?= $readonly ?>></td>
+            <td><?= $href_path ?><?= $user_query_result['username'] ?></a></td>
+            <td><?= $href_path ?><?php
+                                    echo substr($user_query_result['query'], 0, 25);
+                                    if (strlen($user_query_result['query']) > 25) {
+                                        echo "...";
+                                    }
+                                    ?></td>
+            <td><?= $href_path ?><?= $user_query_result['status'] ?></a></td>
+            <td><?= $href_path ?><?= $user_query_result['assigned_to'] ?></a></td>
+            <td><?= $href_path ?><?= $user_query_result['assigned_by'] ?></a></td>
+            <td><?= $href_path ?><?= dateconvertion($user_query_result['assigned_on']) ?></a></td>
+            <td><?= $href_path ?><?= dateconvertion($user_query_result['reviewed_on']) ?></a></td>
+            <td><?= $href_path ?><?= dateconvertion($user_query_result['query_date']) ?></a></td>
         </tr>
 <?php
             }

@@ -99,12 +99,15 @@ function name_setting($button_name, $value1, $value2)
 }
 
 //converts numeric date from database to alpha numeric format
-function dateconvertion($numericdate)
+function dateconvertion($numericdate, $output_format = "d M")
 {
-    $dateString = $numericdate;
-    $date = new DateTime($dateString);
-    $formattedDate = $date->format("d M ");
-    return $formattedDate;
+    if (!is_null($numericdate)) {
+        $dateString = $numericdate;
+        $date = new DateTime($dateString);
+        $formattedDate = $date->format($output_format);
+        return $formattedDate;
+    }
+    return;
 }
 //displays the user as me in their application whereever their email appears
 function usermail_as_me($sender_mail, $reciever_mail, $sender_username, $reciever_username)

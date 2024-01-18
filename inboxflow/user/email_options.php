@@ -276,8 +276,12 @@ if (isset($_POST['send']) || isset($_POST['send_mail']) && $_GET['option'] == "D
 }
 //saves the changes made in user profile
 if (isset($_POST['save'])) {
+    $name = !empty($_POST['name']) ? sanitizing($_POST['name']) : "";
+    $dob = !empty($_POST['dob']) ? sanitizing($_POST['dob']) : "";
+    $dob = dateconvertion($dob, "y-m-d");
+    $phone_number = !empty($_POST['cell_number']) ? sanitizing($_POST['cell_number']) : "";
     if (!empty($_POST)) {
-        $update_details = "update user_details set name='{$_POST['name']}', date_of_birth='{$_POST['dob']}', phone_no='{$_POST['cell_number']}', updated_on = current_timestamp where email='{$result['email']}';";
+        $update_details = "update user_details set name='$name', date_of_birth='$dob', phone_no='$phone_number', updated_on = current_timestamp where email='{$result['email']}';";
         $conn->query($update_details);
     }
 }
