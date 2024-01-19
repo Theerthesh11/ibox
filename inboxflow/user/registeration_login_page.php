@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once "email_function.php";
+require_once "../user/email_function.php";
+// require_once "../sample draft/welcome_mail.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -155,14 +156,8 @@ require_once "email_function.php";
                                 $fetch_token_result = $fetch_token_output->fetch_assoc();
                                 $_SESSION['token_id'] = $fetch_token_result['token_id'];
                             }
-                            // echo "Registeration successfull</h6>";
-                            // $attachmentsFolder = "Attachments/";
-                            // Check if the folder exists, and create it if not
-                            // if (!file_exists($attachmentsFolder) || !is_dir($attachmentsFolder)) {
-                            //     mkdir($attachmentsFolder, 0777, true);
-                            // } // The third parameter creates parent directories if they don't exist
-                            // Now create the subfolder inside "Attachments"
                             mkdir("../Attachments/" . bin2hex($_SESSION['token_id']));
+                            // welcome_mail($result['email']);
                             header("location:email.php?page=Email&option=Inbox");
                         } else {
                             echo "<h6 style=\"text-align: center; color:red;\">Registeration unsuccessfull</h6>";

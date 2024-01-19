@@ -63,7 +63,7 @@ function user_list($page, $query = "select * from user_details", $search_content
         $page_no = $_GET['page_no'];
     }
     $page_first_result = ($page_no - 1) * $results_per_page;
-    $user_details_query =  "$query ORDER BY created_on LIMIT " . $page_first_result . ',' . $results_per_page;
+    $user_details_query =  "$query ORDER BY created_on desc LIMIT " . $page_first_result . ',' . $results_per_page;
     $user_details_output = $conn->query($user_details_query);
     while ($user_details_result = $user_details_output->fetch_assoc()) {
 ?>
@@ -104,7 +104,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             echo '<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
         }
         echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
-        echo "</div><br><hr><br>";
+        echo "</div><br>";
     }
 
     //this function returns admin details
@@ -123,7 +123,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             $page_no = $_GET['page_no'];
         }
         $page_first_result = ($page_no - 1) * $results_per_page;
-        $admin_details_query = "$query LIMIT " . $page_first_result . ',' . $results_per_page;
+        $admin_details_query = "$query ORDER BY created_on desc LIMIT " . $page_first_result . ',' . $results_per_page;
         $admin_details_output = $conn->query($admin_details_query);
         if ($admin_details_output->num_rows > 0) {
             while ($admin_details_result = $admin_details_output->fetch_assoc()) {
@@ -152,7 +152,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             echo '<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
         }
         echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
-        echo "</div><br><hr><br>";
+        echo "</div><br>";
     }
     //this function returns login activity of admin
     function login_activity($page, $query)
@@ -169,7 +169,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             $page_no = $_GET['page_no'];
         }
         $page_first_result = ($page_no - 1) * $results_per_page;
-        $login_activity_query = "$query LIMIT " . $page_first_result . ',' . $results_per_page;
+        $login_activity_query = "$query ORDER BY login_time desc LIMIT " . $page_first_result . ',' . $results_per_page;
         $login_activity_output = $conn->query($login_activity_query);
         if ($login_activity_output->num_rows > 0) {
             while ($login_activity_result = $login_activity_output->fetch_assoc()) {
@@ -192,7 +192,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             echo '<button><a href = "admin_dashboard.php?page=' . $page . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
         }
         echo '<button style="width:40px;"><a href = "admin_dashboard.php?page=' . $page . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
-        echo "</div><br><hr><br>";
+        echo "</div><br>";
     }
     function user_login_activity($page, $query)
     {
@@ -229,7 +229,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             echo '<button><a href = "admin_dashboard.php?page=' . $page . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
         }
         echo '<button style="width:40px;"><a href = "admin_dashboard.php?page=' . $page . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
-        echo "</div><br><hr><br>";
+        echo "</div><br>";
     }
     //this function returns individual sent and recieved mails
     function total_mail($column_name, $email, $addition = " ")
@@ -264,7 +264,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             $page_no = $_GET['page_no'];
         }
         $page_first_result = ($page_no - 1) * $results_per_page;
-        $admin_details_query = "$query LIMIT " . $page_first_result . ',' . $results_per_page;
+        $admin_details_query = "$query ORDER BY created_on desc LIMIT " . $page_first_result . ',' . $results_per_page;
         $admin_details_output = $conn->query($admin_details_query);
         if ($admin_details_output->num_rows > 0) {
             while ($admin_details_result = $admin_details_output->fetch_assoc()) {
@@ -293,7 +293,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             echo '<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
         }
         echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>></a></button>';
-        echo "</div><br><hr><br>";
+        echo "</div><br>";
     }
     //function sanitizes the data 
     function sanitizing($data)
@@ -325,10 +325,10 @@ function user_list($page, $query = "select * from user_details", $search_content
         }
         return $ip;
     }
-    function user_query($page, $query = "select * from user_queries")
+    function user_query($query = "select * from user_queries")
     {
         // require "config.php";
-        global $conn;
+        global $conn, $admin_details, $option;
 
         $results_per_page = 10;
         $result = $conn->query($query);
@@ -340,11 +340,15 @@ function user_list($page, $query = "select * from user_details", $search_content
             $page_no = $_GET['page_no'];
         }
         $page_first_result = ($page_no - 1) * $results_per_page;
-        $user_query_query = "$query LIMIT " . $page_first_result . ',' . $results_per_page;
+        $user_query_query = "$query ORDER BY query_date desc LIMIT " . $page_first_result . ',' . $results_per_page;
         $user_query_output = $conn->query($user_query_query);
         if ($user_query_output->num_rows > 0) {
             while ($user_query_result = $user_query_output->fetch_assoc()) {
-                $href_path = '<a href="admin_dashboard.php?page=Queries&page_no=' . $page_no . '&id=' . $user_query_result['id'] . '">';
+                if ($admin_details['role'] == "superadmin") {
+                    $href_path = '<a href="admin_dashboard.php?page=Queries&page_no=' . $page_no . '&id=' . $user_query_result['id'] . '">';
+                } else {
+                    $href_path = '<a href="admin_dashboard.php?page=Queries&option=' . $option . '&page_no=' . $page_no . '&id=' . $user_query_result['id'] . '">';
+                }
     ?>
         <tr style="text-align:center;">
             <?php
@@ -369,7 +373,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             <td><?= $href_path ?><?= dateconvertion($user_query_result['reviewed_on']) ?></a></td>
             <td><?= $href_path ?><?= dateconvertion($user_query_result['query_date']) ?></a></td>
         </tr>
-<?php
+    <?php
             }
         }
         if (isset($_GET['query_no'])) {
@@ -383,5 +387,105 @@ function user_list($page, $query = "select * from user_details", $search_content
             echo '<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
         }
         echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>></a></button>';
-        echo "</div><br><hr><br>";
+        echo "</div><br>";
+    }
+    function user_query_search($user_complaint_query = "select * from user_queries")
+    {
+        global $conn, $page_no, $username;
+        if (isset($_GET['query_no'])) {
+            $query_search =  !empty($_GET['query_no']) ? sanitizing($_GET['query_no']) : '';
+            $admin_search_query = "select * from user_queries where id like '%$query_search%'";
+            $admin_search_output = $conn->query($admin_search_query);
+            if ($admin_search_output->num_rows > 0) {
+                user_query($admin_search_query);
+            } else {
+                user_query($user_complaint_query);
+            }
+        } elseif (isset($_GET['id'])) {
+            $id = sanitizing($_GET['id']);
+            $get_complaint_query = "select * from user_queries where id='$id';";
+            $get_complaint_output = $conn->query($get_complaint_query);
+            if ($get_complaint_output->num_rows > 0) {
+                $complaint = $get_complaint_output->fetch_assoc();
+            }
+    ?>
+    <div>
+        <form action="admin_dashboard.php?page=Queries&page_no=<?= $page_no ?>" method="post">
+            <div class="complaint-view-form">
+                <div class="complaint-textbox">
+                    <label for="query_id">ID</label>
+                    <input type="text" name="query_status[]" id="query_id" value="<?= $complaint['id'] ?>" readonly>
+                </div>
+                <div class="complaint-textbox">
+                    <label for="username" style="padding: 8px 17px;">USERNAME</label>
+                    <input type="text" name="username" id="username" value="<?= $complaint['username'] ?>" readonly>
+                </div>
+                <div class="complaint-textbox">
+                    <label for="date" style="padding: 8px 36px;">DATE</label>
+                    <input type="text" name="query_date" id="date" value="<?= dateconvertion($complaint['query_date'], "d M y") ?>" readonly>
+                </div>
+            </div>
+            <div class="complaint-view-form">
+                <div class="complaint-textbox">
+                    <label for="assigned_by">ASSIGNED BY</label>
+                    <input type="text" name="assigned_by" id="assigned_by" value="<?= $complaint['assigned_by'] ?>" readonly>
+                </div>
+                <div class="complaint-textbox">
+                    <label for="assigned_on">ASSIGNED ON</label>
+                    <input type="text" name="assigned_on" id="assigned_on" value="<?= dateconvertion($complaint['assigned_on'], "d M y") ?>" readonly>
+                </div>
+                <div class="complaint-textbox">
+                    <label for="assigned_to">ASSIGNED TO</label>
+                    <input type="text" name="assigned_to" id="assigned_to" value="<?= $complaint['assigned_to'] ?>" readonly>
+                </div>
+            </div>
+            <div class="complaint-view-form">
+                <div class="complaint-textbox">
+                    <label for="status" style="padding: 8px 27px;">STATUS</label>
+                    <input type="text" name="status" id="status" value="<?= $complaint['status'] ?>" readonly>
+                </div>
+                <div class="complaint-textbox">
+                    <label for="reviewed_on">REVIEWED ON</label>
+                    <input type="text" name="reviewed_on" id="reviewed_on" value="<?= dateconvertion($complaint['reviewed_on'], "d M y") ?>" readonly>
+                </div>
+                <div class="complaint-textbox">
+                    <label for="reviewed_by">REVIEWED BY</label>
+                    <input type="text" name="reviewed_by" id="reviewed_by" value="<?= $complaint['reviewed_by'] ?>" readonly>
+                </div>
+            </div>
+            <div class="query">
+                <label for="query">QUERY</label>
+                <textarea name="complaint_query" id="query"><?= $complaint['query'] ?></textarea>
+            </div>
+        </form>
+    </div>
+<?php
+        } else {
+?>
+    <tr style="text-align: center;color:white; background:hsla(246, 100%, 73%, 1);box-shadow:3px 3px 6px rgb(215, 212, 255);">
+        <th style="width: 5%;"></th>
+        <th style="width: 10%;">USERNAME</th>
+        <th style="width: 25%;">QUERY</th>
+        <th style="width: 10%;">STATUS</th>
+        <th style="width: 10%;">ASSIGNED TO</th>
+        <th style="width: 10%;">ASSIGNED BY</th>
+        <th style="width: 10%;">ASSIGNED ON</th>
+        <th style="width: 10%;">REVIEWED ON</th>
+        <th style="width: 10%;">DATE</th>
+    </tr>
+<?php
+
+            user_query($user_complaint_query);
+        }
+        $checkbox_value = !empty($_POST['query_status']) ? $_POST['query_status'] : array();
+        if (isset($_POST['reviewed'])) {
+            foreach ($checkbox_value as $id) {
+                $reviewed_query = "update user_queries set reviewed_by='$username',reviewed_on=current_timestamp,status='REVIEWED' where id='$id' and assigned_to='$username';";
+                $conn->query($reviewed_query);
+            }
+        }
+    }
+    function alert_message($message)
+    {
+        echo '<div class="alert-message"><p>' . $message . '</p></div>';
     }

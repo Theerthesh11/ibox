@@ -317,6 +317,11 @@ td a {
     vertical-align: top;
 }
 
+.star:hover {
+    background-color: grey;
+    border-radius: 100%;
+}
+
 .star:before {
     content: "\2606";
     position: absolute;

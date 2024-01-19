@@ -33,7 +33,7 @@ require_once 'admin_functions.php';
                         <!--login form-->
                         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
                             <label for="username">Username</label><br>
-                            <input type="text" name="username" id="username" value="<?=(!empty(sanitizing($_POST['username'])) && !isset($_POST['clear']))?sanitizing($_POST['username']):''?>"><br><br>
+                            <input type="text" name="username" id="username" value="<?= (!empty(sanitizing($_POST['username'])) && !isset($_POST['clear'])) ? sanitizing($_POST['username']) : '' ?>"><br><br>
                             <label for="password">Password</label><br>
                             <input type="password" name="password" placeholder=""><br><br>
                             <div class="form-buttons">
@@ -67,6 +67,8 @@ require_once 'admin_functions.php';
                                                     $name = $result['name'];
                                                     $role = $result['role'];
                                                     $_SESSION['admin_token_id'] = $result['token_id'];
+                                                    $_SESSION['current_page'] = "I-Box Dashboard";
+                                                    $_SESSION['current_option'] ="Solved";
                                                     $activity = "";
                                                     //setting the default timezone
                                                     date_default_timezone_set('Asia/Kolkata');
@@ -100,7 +102,7 @@ require_once 'admin_functions.php';
                 </div>
             </div>
         </div>
-    </div>  
+    </div>
 </body>
 
 </html>

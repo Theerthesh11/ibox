@@ -86,4 +86,20 @@ if (isset($_POST['restrict_access'])) {
         }
     }
 }
-
+if (isset($_GET['query_no'])) {
+    $query_search =  !empty($_GET['query_no']) ? sanitizing($_GET['query_no']) : '';
+    $admin_search_query = "select * from user_queries where id like '%$query_search%'";
+    $admin_search_output = $conn->query($admin_search_query);
+    if ($admin_search_output->num_rows > 0) {
+        user_query($page, $admin_search_query);
+    } else {
+        user_query($page);
+    }
+} elseif (isset($_GET['id'])) {
+    $id = sanitizing($_GET['id']);
+    $get_complaint_query = "select * from user_queries where id='$id';";
+    $get_complaint_output = $conn->query($get_complaint_query);
+    if ($get_complaint_output->num_rows > 0) {
+        $complaint = $get_complaint_output->fetch_assoc();
+    }
+}

@@ -20,6 +20,11 @@ if ($admin_details_output->num_rows > 0) {
 } else {
     header("location:admin_login.php");
 }
+if ($admin_details['role'] == "superadmin") {
+    $path = "page=Queries";
+} else {
+    $path = "page=Queries&option=Solved";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,11 +52,21 @@ if ($admin_details_output->num_rows > 0) {
             <div class="path">
                 <?php
                 $page = isset($_GET['page']) ? $_GET['page'] : $_SESSION['current_page'];
+                $option = isset($_GET['option']) ? $_GET['option'] : $_SESSION['current_option'];
                 $page_no = empty($_GET['page_no']) ? '1' : $_GET['page_no'];
                 ?>
-                <a href="admin_dashboard.php?page=<?= $page ?>" style="color:rgb(114, 98, 255);">
+                <a href="admin_dashboard.php?<?= $path ?>" style="color:rgb(114, 98, 255);">
                     <?= $page ?>
                 </a>
+                <?php
+                if (isset($_GET['option'])) {
+                ?>
+                    <a href="admin_dashboard.php?page=<?= $page ?>&option=<?= $option ?>" style="color:rgb(114, 98, 255);">
+                        <?= " | " . $option ?>
+                    </a>
+                <?php
+                }
+                ?>
             </div>
             <!--adding file that displays profile picture-->
             <div class="profile">
@@ -73,7 +88,18 @@ if ($admin_details_output->num_rows > 0) {
                 <li><a href="?page=User log"><button <?= (isset($_GET['page']) && $_GET['page'] === 'User log') || ($_SESSION['current_page'] == 'User log' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>User log</button></a></li>
                 <li><a href="?page=Admin"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Admin') || ($_SESSION['current_page'] == 'Admin' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Admin</button></a></li>
                 <li><a href="?page=Access"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Access') || ($_SESSION['current_page'] == 'Access' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Access</button></a></li>
-                <li><a href="?page=Queries"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Queries') || ($_SESSION['current_page'] == 'Queries' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Queries</button></a></li>
+                <li><a href="?<?= $path ?>"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Queries') || ($_SESSION['current_page'] == 'Queries' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Queries</button></a>
+                    <?php
+                    if ($page == "Queries" && $admin_details['role'] == "admin") {
+                    ?>
+                        <ul>
+                            <li><a href="?page=Queries&option=Solved"><button <?= (isset($_GET['option']) && $_GET['option'] === 'Solved') || ($_SESSION['current_option'] == 'Solved' && !isset($_GET['option'])) ? ' class="sub-active"' : '' ?>>Solved</button></a></li>
+                            <li><a href="?page=Queries&option=Unsolved"><button <?= (isset($_GET['option']) && $_GET['option'] === 'Unsolved') || ($_SESSION['current_option'] == 'Unsolved' && !isset($_GET['option'])) ? ' class="sub-active"' : '' ?>>Unsolved</button></a></li>
+                        </ul>
+                    <?php
+                    }
+                    ?>
+                </li>
             </ul>
         </div>
         <?php
@@ -355,7 +381,7 @@ if ($admin_details_output->num_rows > 0) {
                             //1 means access is given 0 means access restricted
                             if ($admin_details['login_activity'] == 1) {
                             ?>
-                                <form action="admin_dashboard.php?page=Login%20Activity&page_no=<?= isset($_GET['page_no']) ? $_GET['page_no'] : 1 ?>" method="post">
+                                <form action="admin_dashboard.php?page=Login%20Activity&page_no=<?= isset($_GET['page_no']) ? $_GET['page_no'] : 1 ?>" method="get">
                                     <div class="access-options">
                                         <div class="search">
                                             <Label for="from_date">FROM</Label>
@@ -364,16 +390,16 @@ if ($admin_details_output->num_rows > 0) {
                                             <input type="date" id="to_date" name="to_date" max="<?= date('Y-m-d') ?>">
                                             <input type="submit" name="activity-search-btn" value="Search">
                                         </div>
-                                        <div>
-                                            <!--retrives login info for past 3 days-->
-                                            <input type="submit" name="last_3_days" value="Last 3 days">
-                                            <!--retrives login info for past 7 days-->
-                                            <input type="submit" name="last_7_days" value="Last 7 days">
-                                            <!--retrives login info for past 15 days-->
-                                            <input type="submit" name="last_15_days" value="Last 15 days">
-                                            <!--retrives login info for past 30 days-->
-                                            <input type="submit" name="last_30_days" value="Last 30 days">
-                                        </div>
+                                        <!-- <div> -->
+                                        <!--retrives login info for past 3 days-->
+                                        <!-- <input type="submit" name="last_3_days" value="Last 3 days"> -->
+                                        <!--retrives login info for past 7 days-->
+                                        <!-- <input type="submit" name="last_7_days" value="Last 7 days"> -->
+                                        <!-- retrives login info for past 15 days -->
+                                        <!-- <input type="submit" name="last_15_days" value="Last 15 days"> -->
+                                        <!--retrives login info for past 30 days-->
+                                        <!-- <input type="submit" name="last_30_days" value="Last 30 days"> -->
+                                        <!-- </div> -->
                                     </div>
                                 </form>
                                 <div class="user_table">
@@ -388,30 +414,30 @@ if ($admin_details_output->num_rows > 0) {
                                         </tr>
                                         <?php
                                         //when last 3 days button is clicked
-                                        if (isset($_POST['last_3_days'])) {
-                                            $custom_record_query = "select * from login_activity where DATE(login_time) between DATE_SUB(NOW(), INTERVAL 3 DAY) AND CURDATE()";
-                                            $custom_record_output = $conn->query($custom_record_query);
-                                            login_activity($page, $custom_record_query);
-                                        } //when last 7 days button is clicked
-                                        elseif (isset($_POST['last_7_days'])) {
-                                            $custom_record_query = "select * from login_activity where DATE(login_time) between DATE_SUB(NOW(), INTERVAL 7 DAY) AND CURDATE()";
-                                            $custom_record_output = $conn->query($custom_record_query);
-                                            login_activity($page, $custom_record_query);
-                                        } //when last 15 days button is clicked
-                                        elseif (isset($_POST['last_15_days'])) {
-                                            $custom_record_query = "select * from login_activity where DATE(login_time) between DATE_SUB(NOW(), INTERVAL 15 DAY) AND CURDATE()";
-                                            $custom_record_output = $conn->query($custom_record_query);
-                                            login_activity($page, $custom_record_query);
-                                        } //when last 30 days button is clicked
-                                        elseif (isset($_POST['last_30_days'])) {
-                                            $custom_record_query = "select * from login_activity where DATE(login_time) between DATE_SUB(NOW(), INTERVAL 30 DAY) AND CURDATE()";
-                                            // $custom_record_output = $conn->query($custom_record_query);
-                                            login_activity($page, $custom_record_query);
-                                        } //by default displays total login info
-                                        elseif (isset($_POST['activity-search-btn'])) {
-                                            if (!empty($_POST['from_date']) && !empty(['to_date'])) {
-                                                $from_date = !empty($_POST['from_date']) ? $_POST['from_date'] : "";
-                                                $to_date = !empty($_POST['to_date']) ? $_POST['to_date'] : "curdate()";
+                                        // if (isset($_POST['last_3_days'])) {
+                                        //     $custom_record_query = "select * from login_activity where DATE(login_time) between DATE_SUB(NOW(), INTERVAL 3 DAY) AND CURDATE()";
+                                        //     $custom_record_output = $conn->query($custom_record_query);
+                                        //     login_activity($page, $custom_record_query);
+                                        // } //when last 7 days button is clicked
+                                        // elseif (isset($_POST['last_7_days'])) {
+                                        //     $custom_record_query = "select * from login_activity where DATE(login_time) between DATE_SUB(NOW(), INTERVAL 7 DAY) AND CURDATE()";
+                                        //     $custom_record_output = $conn->query($custom_record_query);
+                                        //     login_activity($page, $custom_record_query);
+                                        // } //when last 15 days button is clicked
+                                        // elseif (isset($_POST['last_15_days'])) {
+                                        //     $custom_record_query = "select * from login_activity where DATE(login_time) between DATE_SUB(NOW(), INTERVAL 15 DAY) AND CURDATE()";
+                                        //     $custom_record_output = $conn->query($custom_record_query);
+                                        //     login_activity($page, $custom_record_query);
+                                        // } //when last 30 days button is clicked
+                                        // elseif (isset($_POST['last_30_days'])) {
+                                        //     $custom_record_query = "select * from login_activity where DATE(login_time) between DATE_SUB(NOW(), INTERVAL 30 DAY) AND CURDATE()";
+                                        //     // $custom_record_output = $conn->query($custom_record_query);
+                                        //     login_activity($page, $custom_record_query);
+                                        // } //by default displays total login info
+                                        if (isset($_GET['activity-search-btn'])) {
+                                            if (!empty($_GET['from_date']) && !empty($_GET['to_date'])) {
+                                                $from_date = !empty($_GET['from_date']) ? $_GET['from_date'] : "";
+                                                $to_date = !empty($_GET['to_date']) ? $_GET['to_date'] : "curdate()";
                                                 if ($from_date > $to_date && $to_date == "curdate()") {
                                                     $from_date = "curdate()";
                                                 } elseif ($from_date > $to_date) {
@@ -597,77 +623,104 @@ if ($admin_details_output->num_rows > 0) {
                                                         </div>
                                                     </div>
                                                     <!--displays the table headers-->
-                                                    <table class="access-table">
-                                                        <tr style="text-align: center;color:white; background:hsla(246, 100%, 73%, 1);box-shadow:3px 3px 6px rgb(215, 212, 255);">
-                                                            <th>EMP ID</th>
-                                                            <th>USERNAME</th>
-                                                            <th>NAME</th>
-                                                            <th>IBOX DASHBOARD</th>
-                                                            <th>ADMIN LIST</th>
-                                                            <th>USER LIST</th>
-                                                            <th>LOGIN ACTIVITY</th>
-                                                            <th>ACCESS PAGE </th>
-                                                        </tr>
-                                                        <!--displays the admin name and checkboxes to give access to each page-->
-                                                        <?php
-                                                        if (isset($_GET['admin_access_search'])) {
-                                                            $admin_search_content =  !empty($_GET['admin_access_search']) ? sanitizing($_GET['admin_access_search']) : "";
-                                                            $admin_search_query = "select * from admin_details where role='admin' and (username like '%$admin_search_content%' or email like '%$admin_search_content%' or name like '%$admin_search_content%')";
-                                                            $admin_search_output = $conn->query($admin_search_query);
-                                                            if ($admin_search_output->num_rows > 0) {
-                                                                admin_access($page, $admin_search_query);
+                                                    <div class="user_table">
+                                                        <table class="user_list">
+                                                            <tr style="text-align: center;color:white; background:hsla(246, 100%, 73%, 1);box-shadow:3px 3px 6px rgb(215, 212, 255);">
+                                                                <th>EMP ID</th>
+                                                                <th>USERNAME</th>
+                                                                <th>NAME</th>
+                                                                <th>IBOX DASHBOARD</th>
+                                                                <th>ADMIN LIST</th>
+                                                                <th>USER LIST</th>
+                                                                <th>LOGIN ACTIVITY</th>
+                                                                <th>ACCESS PAGE </th>
+                                                            </tr>
+                                                            <!--displays the admin name and checkboxes to give access to each page-->
+                                                            <?php
+                                                            if (isset($_GET['admin_access_search'])) {
+                                                                $admin_search_content =  !empty($_GET['admin_access_search']) ? sanitizing($_GET['admin_access_search']) : "";
+                                                                $admin_search_query = "select * from admin_details where role='admin' and (username like '%$admin_search_content%' or email like '%$admin_search_content%' or name like '%$admin_search_content%')";
+                                                                $admin_search_output = $conn->query($admin_search_query);
+                                                                if ($admin_search_output->num_rows > 0) {
+                                                                    admin_access($page, $admin_search_query);
+                                                                } else {
+                                                                    admin_access($page);
+                                                                }
                                                             } else {
                                                                 admin_access($page);
                                                             }
-                                                        } else {
-                                                            admin_access($page);
-                                                        }
-                                                        ?>
-                                                    </table>
-                                                    </form>
-                                                <?php
+                                                            ?>
+                                                        </table>
+                                                        </form>
+                                                    <?php
                                                 } else {
-                                                ?>
-                                                    <!--if admin does not have access this part id displayed-->
-                                                    <div class="restricted-access">
-                                                        <h3>Access restricted</h3>
-                                                        <img src="../images/lock.jpg" alt="lock">
-                                                    </div>
-                                                <?php
+                                                    ?>
+                                                        <!--if admin does not have access this part id displayed-->
+                                                        <div class="restricted-access">
+                                                            <h3>Access restricted</h3>
+                                                            <img src="../images/lock.jpg" alt="lock">
+                                                        </div>
+                                                    <?php
                                                 }
-                                                ?>
+                                                    ?>
+                                                    </div>
                                             </div>
-                                        </div>
-                                    <?php
+                                        <?php
                                         break;
                                     case 'Queries':
                                         $_SESSION['current_page'] = "Queries";
-                                    ?>
-                                        <div class="dashboard-container">
-                                            <div class="dashboard-content">
-                                                <!-- <div class="option-flex">
-                                    <div><a href="admin_dashboard.php?page=Queries&option=solved&page_no=<?= $page_no ?>">SOLVED</a></div>
-                                    <div><a href="admin_dashboard.php?page=Queries&option=unsolved&page_no=<?= $page_no ?>">UNSOLVED</a></div>
-                                </div> -->
-                                                <!-- <hr> -->
-                                                <?php
-                                                //checks if admin has access to this page
-                                                //1 means access is given 0 means access restricted
-                                                ?>
-                                                <div class="access-options">
-                                                    <div class="search">
-                                                        <form action="admin_dashboard.php" method="get">
-                                                            <input type="search" name="query_no" placeholder="1" value=<?= isset($_GET['query_no']) ? $_GET['query_no'] : "" ?>>
-                                                            <input type="submit" name="query_search_btn" value="Search">
-                                                        </form>
+                                        $option = isset($_GET['option']) ? sanitizing($_GET['option']) : "";
+                                        ?>
+                                            <div class="dashboard-container">
+                                                <div class="dashboard-content">
+                                                    <div class="access-options">
+                                                        <div class="search">
+                                                            <form action="admin_dashboard.php" method="get">
+                                                                <input type="search" name="query_no" placeholder="1" value="<?= isset($_GET['query_no']) ? $_GET['query_no'] : "" ?>">
+                                                                <input type="submit" name="query_search_btn" value="Search">
+                                                            </form>
+                                                        </div>
+
+                                                        <?php
+                                                        switch ($option) {
+
+                                                            case 'Solved':
+                                                        ?>
+                                                                <div>
+                                                                    <form action="admin_dashboard.php?page=Queries&option=<?= $option ?>&page_no=<?= $page_no ?>" method="post" id="query_status">
+                                                                        <input type="submit" name="reviewed" value="Reviewed">
+                                                                    </form>
+                                                                </div>
                                                     </div>
-                                                    <div>
-                                                        <form action="admin_dashboard.php?page=Queries&page_no=<?= $page_no ?>" method="post" id="query_status">
-                                                            
-                                                            <?php
-                                                            if ($admin_details['role'] == "superadmin") {
-                                                            ?>
+                                                    <div class="user_table">
+                                                        <table class="user_list">
+                                                        <?php
+                                                                $_SESSION['current_option'] = "Solved";
+                                                                $solved_issue_query = "select * from user_queries where assigned_to='$username' and status='REVIEWED' ";
+                                                                user_query_search($solved_issue_query);
+                                                                break;
+                                                            case 'Unsolved':
+                                                        ?>
+                                                            <div>
+                                                                <form action="admin_dashboard.php?page=Queries&option=<?= $option ?>&page_no=<?= $page_no ?>" method="post" id="query_status">
+                                                                    <input type="submit" name="reviewed" value="Reviewed">
+                                                                </form>
+                                                            </div>
+                                                    </div>
+                                                    <div class="user_table">
+                                                        <table class="user_list">
+                                                        <?php
+                                                                $_SESSION['current_option'] = "Unsolved";
+                                                                $unsolved_issue_query = "select * from user_queries where assigned_to='$username' and status='NOT REVIEWED' ";
+                                                                user_query_search($unsolved_issue_query);
+                                                                break;
+                                                        }
+                                                        if ($admin_details['role'] == "superadmin") {
+                                                        ?>
+                                                        <div>
+                                                            <form action="admin_dashboard.php?page=Queries&page_no=<?= $page_no ?>" method="post" id="query_status">
                                                                 <select name="admins" id="admins">
+                                                                    <option value="none" selected disabled hidden>ADMINS</option>
                                                                     <?php
                                                                     $admin_fetch_query = "select username from admin_details;";
                                                                     $admin_output = $conn->query($admin_fetch_query);
@@ -680,120 +733,29 @@ if ($admin_details_output->num_rows > 0) {
                                                                     ?>
                                                                 </select>
                                                                 <input type="submit" name="assign" value="ASSIGN">
-                                                            <?php
-                                                            }
-                                                            ?>
-                                                            <input type="submit" name="reviewed" value="reviewed">
-                                                        </form>
+                                                                <input type="submit" name="reviewed" value="Reviewed">
+                                                            </form>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="user_table">
-                                                    <table class="user_list">
-                                                        <?php
-                                                        if (isset($_GET['query_no'])) {
-                                                            $query_search =  !empty($_GET['query_no']) ? sanitizing($_GET['query_no']) : '';
-                                                            $admin_search_query = "select * from user_queries where id like '%$query_search%'";
-                                                            $admin_search_output = $conn->query($admin_search_query);
-                                                            if ($admin_search_output->num_rows > 0) {
-                                                                user_query($page, $admin_search_query);
-                                                            } else {
-                                                                user_query($page);
-                                                            }
-                                                        } elseif (isset($_GET['id'])) {
-                                                            $id = sanitizing($_GET['id']);
-                                                            $get_complaint_query = "select * from user_queries where id='$id';";
-                                                            $get_complaint_output = $conn->query($get_complaint_query);
-                                                            if ($get_complaint_output->num_rows > 0) {
-                                                                $complaint = $get_complaint_output->fetch_assoc();
-                                                            }
-                                                        ?>
-                                                            <div>
-                                                                <form action="admin_dashboard.php?page=Queries&page_no=<?= $page_no ?>" method="post">
-                                                                    <div class="complaint-view-form">
-                                                                        <div class="complaint-textbox">
-                                                                            <label for="query_id">ID</label>
-                                                                            <input type="text" name="query_status[]" id="query_id" value="<?= $complaint['id'] ?>" readonly>
-                                                                        </div>
-                                                                        <div class="complaint-textbox">
-                                                                            <label for="username" style="padding: 8px 17px;">USERNAME</label>
-                                                                            <input type="text" name="username" id="username" value="<?= $complaint['username'] ?>" readonly>
-                                                                        </div>
-                                                                        <div class="complaint-textbox">
-                                                                            <label for="date" style="padding: 8px 36px;">DATE</label>
-                                                                            <input type="text" name="query_date" id="date" value="<?= dateconvertion($complaint['query_date'], "d M y") ?>" readonly>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="complaint-view-form">
-                                                                        <div class="complaint-textbox">
-                                                                            <label for="assigned_by">ASSIGNED BY</label>
-                                                                            <input type="text" name="assigned_by" id="assigned_by" value="<?= $complaint['assigned_by'] ?>" readonly>
-                                                                        </div>
-                                                                        <div class="complaint-textbox">
-                                                                            <label for="assigned_on">ASSIGNED ON</label>
-                                                                            <input type="text" name="assigned_on" id="assigned_on" value="<?= dateconvertion($complaint['assigned_on'], "d M y") ?>" readonly>
-                                                                        </div>
-                                                                        <div class="complaint-textbox">
-                                                                            <label for="assigned_to">ASSIGNED TO</label>
-                                                                            <input type="text" name="assigned_to" id="assigned_to" value="<?= $complaint['assigned_to'] ?>" readonly>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="complaint-view-form">
-                                                                        <div class="complaint-textbox">
-                                                                            <label for="status" style="padding: 8px 27px;">STATUS</label>
-                                                                            <input type="text" name="status" id="status" value="<?= $complaint['status'] ?>" readonly>
-                                                                        </div>
-                                                                        <div class="complaint-textbox">
-                                                                            <label for="reviewed_on">REVIEWED ON</label>
-                                                                            <input type="text" name="reviewed_on" id="reviewed_on" value="<?= dateconvertion($complaint['reviewed_on'], "d M y") ?>" readonly>
-                                                                        </div>
-                                                                        <div class="complaint-textbox">
-                                                                            <label for="reviewed_by">REVIEWED BY</label>
-                                                                            <input type="text" name="reviewed_by" id="reviewed_by" value="<?= $complaint['reviewed_by'] ?>" readonly>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="query">
-                                                                        <label for="query">QUERY</label>
-                                                                        <textarea name="complaint_query" id="query"><?= $complaint['query'] ?></textarea>
-                                                                    </div>
-                                                                </form>
-                                                            </div>
-                                                        <?php
-                                                        } else {
-                                                        ?>
-                                                            <tr style="text-align: center;color:white; background:hsla(246, 100%, 73%, 1);box-shadow:3px 3px 6px rgb(215, 212, 255);">
-                                                                <th style="width: 5%;"></th>
-                                                                <th style="width: 10%;">USERNAME</th>
-                                                                <th style="width: 25%;">QUERY</th>
-                                                                <th style="width: 10%;">STATUS</th>
-                                                                <th style="width: 10%;">ASSIGNED TO</th>
-                                                                <th style="width: 10%;">ASSIGNED BY</th>
-                                                                <th style="width: 10%;">ASSIGNED ON</th>
-                                                                <th style="width: 10%;">REVIEWED ON</th>
-                                                                <th style="width: 10%;">DATE</th>
-                                                            </tr>
+                                                    <div class="user_table">
+                                                        <table class="user_list">
                                                 <?php
-
-                                                            user_query($page);
-                                                        }
-                                                        $checkbox_value = !empty($_POST['query_status']) ? $_POST['query_status'] : array();
-                                                        if (isset($_POST['reviewed'])) {
-                                                            foreach ($checkbox_value as $id) {
-                                                                $reviewed_query = "update user_queries set reviewed_by='$username',reviewed_on=current_timestamp,status='REVIEWED' where id='$id';";
-                                                                $conn->query($reviewed_query);
-                                                            }
-                                                        } elseif (isset($_POST['assign']) && !empty($_POST['admins'])) {
-                                                            $assign_to = sanitizing($_POST['admins']);
-                                                            foreach ($checkbox_value as $id) {
-                                                                $assign_query = "update user_queries set assigned_by='{$admin_details['username']}',assigned_to='$assign_to',assigned_on=current_timestamp where id='$id' ;";
-                                                                $conn->query($assign_query);
+                                                            user_query_search();
+                                                            $checkbox_value = !empty($_POST['query_status']) ? $_POST['query_status'] : array();
+                                                            if (isset($_POST['assign']) && !empty($_POST['admins'])) {
+                                                                $assign_to = sanitizing($_POST['admins']);
+                                                                foreach ($checkbox_value as $id) {
+                                                                    $assign_query = "update user_queries set assigned_by='{$admin_details['username']}',assigned_to='$assign_to',assigned_on=current_timestamp where id='$id' ;";
+                                                                    $conn->query($assign_query);
+                                                                }
                                                             }
                                                         }
                                                         break;
                                                 }
                                                 ?>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 </body>
 
 </html>
