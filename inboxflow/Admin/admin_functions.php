@@ -339,7 +339,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             $page_no = $_GET['page_no'];
         }
         $page_first_result = ($page_no - 1) * $results_per_page;
-        $user_query_query = "$query ORDER BY query_date desc LIMIT " . $page_first_result . ',' . $results_per_page;
+        $user_query_query = "$query ORDER BY complaint_date desc LIMIT " . $page_first_result . ',' . $results_per_page;
         $user_query_output = $conn->query($user_query_query);
         if ($user_query_output->num_rows > 0) {
             while ($user_query_result = $user_query_output->fetch_assoc()) {
@@ -359,18 +359,13 @@ function user_list($page, $query = "select * from user_details", $search_content
             ?>
             <td><input type="checkbox" name="query_status[]" value="<?= $user_query_result['id'] ?>" form="query_status" <?= $readonly ?>></td>
             <td><?= $href_path ?><?= $user_query_result['username'] ?></a></td>
-            <td><?= $href_path ?><?php
-                                    echo substr($user_query_result['query'], 0, 25);
-                                    if (strlen($user_query_result['query']) > 25) {
-                                        echo "...";
-                                    }
-                                    ?></td>
+            <td><?= $href_path ?><?= long_sentence_to_short($user_query_result['user_complaint']) ?></td>
             <td><?= $href_path ?><?= $user_query_result['status'] ?></a></td>
             <td><?= $href_path ?><?= $user_query_result['assigned_to'] ?></a></td>
             <td><?= $href_path ?><?= $user_query_result['assigned_by'] ?></a></td>
             <td><?= $href_path ?><?= dateconvertion($user_query_result['assigned_on']) ?></a></td>
             <td><?= $href_path ?><?= dateconvertion($user_query_result['reviewed_on']) ?></a></td>
-            <td><?= $href_path ?><?= dateconvertion($user_query_result['query_date']) ?></a></td>
+            <td><?= $href_path ?><?= dateconvertion($user_query_result['complaint_date']) ?></a></td>
         </tr>
     <?php
             }
@@ -414,47 +409,79 @@ function user_list($page, $query = "select * from user_details", $search_content
                 <div class="complaint-textbox">
                     <label for="query_id">ID</label>
                     <input type="text" name="query_status[]" id="query_id" value="<?= $complaint['id'] ?>" readonly>
+                    <input type="checkbox" value="<?= $complaint['id'] ?>" name="query_status[]" style="margin: 0px 20px;">
                 </div>
                 <div class="complaint-textbox">
-                    <label for="username" style="padding: 8px 17px;">USERNAME</label>
+                    <label for="username" style="padding: 8px 16px;">Username</label>
                     <input type="text" name="username" id="username" value="<?= $complaint['username'] ?>" readonly>
                 </div>
                 <div class="complaint-textbox">
-                    <label for="date" style="padding: 8px 36px;">DATE</label>
-                    <input type="text" name="query_date" id="date" value="<?= dateconvertion($complaint['query_date'], "d M y") ?>" readonly>
+                    <label for="date" style="padding: 8px 32px;">Date</label>
+                    <input type="text" name="complaint_date" id="date" value="<?= dateconvertion($complaint['complaint_date'], "d M y") ?>" readonly>
                 </div>
             </div>
             <div class="complaint-view-form">
                 <div class="complaint-textbox">
-                    <label for="assigned_by">ASSIGNED BY</label>
+                    <label for="assigned_by" style="padding: 8px 10px;">Assigned by</label>
                     <input type="text" name="assigned_by" id="assigned_by" value="<?= $complaint['assigned_by'] ?>" readonly>
                 </div>
                 <div class="complaint-textbox">
-                    <label for="assigned_on">ASSIGNED ON</label>
+                    <label for="assigned_on" style="padding: 8px 10px;">Assigned on</label>
                     <input type="text" name="assigned_on" id="assigned_on" value="<?= dateconvertion($complaint['assigned_on'], "d M y") ?>" readonly>
                 </div>
                 <div class="complaint-textbox">
-                    <label for="assigned_to">ASSIGNED TO</label>
+                    <label for="assigned_to" style="padding: 8px 11px;">Assigned to</label>
                     <input type="text" name="assigned_to" id="assigned_to" value="<?= $complaint['assigned_to'] ?>" readonly>
                 </div>
             </div>
             <div class="complaint-view-form">
                 <div class="complaint-textbox">
-                    <label for="status" style="padding: 8px 27px;">STATUS</label>
-                    <input type="text" name="status" id="status" value="<?= $complaint['status'] ?>" readonly>
+                    <label for="status" style="padding: 8px 27px;">Status</label>
+                    <select name="complaint_type" id="complaint_type" class="status-dropdown">
+                        <option value="Reviewed">Reviewed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                    </select>
                 </div>
                 <div class="complaint-textbox">
-                    <label for="reviewed_on">REVIEWED ON</label>
+                    <label for="reviewed_on">Reviewed on</label>
                     <input type="text" name="reviewed_on" id="reviewed_on" value="<?= dateconvertion($complaint['reviewed_on'], "d M y") ?>" readonly>
                 </div>
                 <div class="complaint-textbox">
-                    <label for="reviewed_by">REVIEWED BY</label>
+                    <label for="reviewed_by">Reviewed by</label>
                     <input type="text" name="reviewed_by" id="reviewed_by" value="<?= $complaint['reviewed_by'] ?>" readonly>
                 </div>
             </div>
             <div class="query">
-                <label for="query">QUERY</label>
-                <textarea name="complaint_query" id="query"><?= $complaint['query'] ?></textarea>
+                <table class="query" style="overflow-y: scroll;height:200px;">
+                    <tr>
+                        <th>User Complaint</th>
+                        <th>Support Reply</th>
+                    </tr>
+                    <tr>
+                        <td><textarea name="user_complaint" readonly maxlength="100"><?= $complaint['user_complaint'] ?></textarea></td>
+                        <td><textarea name="support_reply" maxlength="100"><?= $complaint['support_reply'] ?></textarea></td>
+                    </tr>
+                    <?php
+                    if ($complaint['user_reply_1'] != NULL || $complaint['support_reply_1'] != NULL) {
+                        $readonly = "readonly";
+                    ?>
+                        <tr>
+                            <td><textarea name="user_reply_1" readonly maxlength="100"><?= $complaint['user_reply_1'] ?></textarea></td>
+                            <td><textarea name="support_reply_1" maxlength="100"><?= $complaint['support_reply_1'] ?></textarea></td>
+                        </tr>
+                    <?php
+                    }
+                    if ($complaint['user_reply_2'] != NULL || $complaint['support_reply_2'] != NULL) {
+                    ?>
+                        <tr>
+                            <td><textarea name="user_reply_2" readonly maxlength="100"><?= $complaint['user_reply_2'] ?></textarea></td>
+                            <td><textarea name="support_reply_2" maxlength="100"><?= $complaint['support_reply_2'] ?></textarea></td>
+                        </tr>
+                    <?php
+                    }
+                    ?>
+                </table>
             </div>
         </form>
     </div>
@@ -508,6 +535,11 @@ function user_list($page, $query = "select * from user_details", $search_content
             if ($get_complaint_output->num_rows > 0) {
                 $complaint = $get_complaint_output->fetch_assoc();
             }
+            if ($complaint['status'] == "Reviewed") {
+                $readonly = "readonly";
+            } else {
+                $readonly = "";
+            }
 ?>
     <div>
         <form action="admin_dashboard.php?page=Queries&option=<?= $option ?>&page_no=<?= $page_no ?>&id=<?= $id ?>" method="post">
@@ -518,7 +550,7 @@ function user_list($page, $query = "select * from user_details", $search_content
                 <div class="complaint-textbox">
                     <label for="query_id">ID</label>
                     <input type="text" name="complaint_id" id="query_id" value="<?= $complaint['id'] ?>" readonly>
-                    <input type="checkbox" value="<?= $complaint['id'] ?>" name="query_status[]" style="margin: 0px 20px;">
+                    <input type="checkbox" value="<?= $complaint['id'] ?>" name="query_status[]" style="margin: 0px 20px;" <?= $readonly ?>>
                 </div>
                 <div class="complaint-textbox">
                     <label for="username" style="padding: 8px 17px;">USERNAME</label>
@@ -526,13 +558,28 @@ function user_list($page, $query = "select * from user_details", $search_content
                 </div>
                 <div class="complaint-textbox">
                     <label for="date" style="padding: 8px 36px;">DATE</label>
-                    <input type="text" name="query_date" id="date" value="<?= dateconvertion($complaint['query_date'], "d M y") ?>" readonly>
+                    <input type="text" name="complaint_date" id="date" value="<?= dateconvertion($complaint['complaint_date'], "d M y") ?>" readonly>
                 </div>
             </div>
             <div class="complaint-view-form">
                 <div class="complaint-textbox">
                     <label for="status" style="padding: 8px 27px;">STATUS</label>
-                    <input type="text" name="status" id="status" value="<?= $complaint['status'] ?>" readonly>
+                    <?php
+                    if ($complaint['status'] == "Pending") { ?>
+                        <select name="complaint_status" id="complaint_status" class="status-dropdown">
+                            <option value="Reviewed">Reviewed</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Processing">Processing</option>
+                        </select>
+                    <?php
+                    } else {
+                    ?>
+                        <select name="complaint_status" id="complaint_status" class="status-dropdown">
+                            <option value="<?= $complaint['status'] ?>"><?= $complaint['status'] ?></option>
+                        </select>
+                    <?php
+                    }
+                    ?>
                 </div>
                 <div class="complaint-textbox">
                     <label for="reviewed_on">REVIEWED ON</label>
@@ -544,12 +591,40 @@ function user_list($page, $query = "select * from user_details", $search_content
                 </div>
             </div>
             <div class="query">
-                <label for="query">QUERY</label>
-                <textarea name="complaint_query" id="query" readonly><?= $complaint['query'] ?></textarea>
-            </div><br><br>
-            <div class="query">
-                <label for="query">COMMENTS</label>
-                <textarea name="admin_comments" id="query"><?= $complaint['comments'] ?></textarea>
+                <table class="query" style="overflow-y: scroll;height:200px;">
+                    <tr>
+                        <th>User Complaint</th>
+                        <th>Support Reply</th>
+                    </tr>
+                    <tr>
+                        <td><textarea name="user_complaint" readonly maxlength="100"><?= $complaint['user_complaint'] ?></textarea></td>
+                        <td><textarea name="support_reply" maxlength="100"><?= $complaint['support_reply'] ?></textarea></td>
+                    </tr>
+                    <?php
+                    if ($complaint['user_reply_1'] != NULL || $complaint['support_reply_1'] != NULL) {
+                        $readonly = "readonly";
+                    ?>
+                        <tr>
+                            <td><textarea name="user_reply_1" readonly maxlength="100"><?= $complaint['user_reply_1'] ?></textarea></td>
+                            <td><textarea name="support_reply_1" maxlength="100"><?= $complaint['support_reply_1'] ?></textarea></td>
+                        </tr>
+                    <?php
+                    }
+                    if ($complaint['user_reply_2'] != NULL || $complaint['support_reply_2'] != NULL) {
+                    ?>
+                        <tr>
+                            <td><textarea name="user_reply_2" readonly maxlength="100"><?= $complaint['user_reply_2'] ?></textarea></td>
+                            <td><textarea name="support_reply_2" maxlength="100"><?= $complaint['support_reply_2'] ?></textarea></td>
+                        </tr>
+                    <?php
+                    }
+                    ?>
+                </table>
+                <br><br>
+            </div>
+            <div class="admin-comments">
+                <label for="admin_comments">Comments</label>
+                <textarea name="admin_comments" id="admin_comments"></textarea>
             </div>
         </form>
     </div>
@@ -570,11 +645,15 @@ function user_list($page, $query = "select * from user_details", $search_content
 
             user_query_admin_view($user_complaint_query);
         }
+        $status = isset($_POST['complaint_status']) ? $_POST['complaint_status'] : "";
         $checkbox_value = !empty($_POST['query_status']) ? $_POST['query_status'] : array();
         $admin_comments = !empty($_POST['admin_comments']) ? sanitizing($_POST['admin_comments']) : NULL;
-        if (isset($_POST['reviewed']) && !empty($admin_comments)) {
+        $support_reply = !empty($_POST['support_reply']) ? sanitizing($_POST['support_reply']) : NULL;
+        $support_reply_1 = !empty($_POST['support_reply_1']) ? sanitizing($_POST['support_reply_1']) : NULL;
+        $support_reply_2 = !empty($_POST['support_reply_2']) ? sanitizing($_POST['support_reply_2']) : NULL;
+        if (isset($_POST['reviewed'])) {
             foreach ($checkbox_value as $id) {
-                $reviewed_query = "update user_queries set reviewed_by='$username',reviewed_on=current_timestamp,status='REVIEWED', comments='$admin_comments' where id='$id' and assigned_to='$username';";
+                $reviewed_query = "update user_queries set reviewed_by='$username',reviewed_on=current_timestamp,status='$status', comments='$admin_comments',support_reply='$support_reply',support_reply_1='$support_reply_1',support_reply_2='$support_reply_2' where id='$id' and assigned_to='$username';";
                 $conn->query($reviewed_query);
             }
         }
@@ -592,7 +671,7 @@ function user_list($page, $query = "select * from user_details", $search_content
             $page_no = $_GET['page_no'];
         }
         $page_first_result = ($page_no - 1) * $results_per_page;
-        $user_query_query = "$query ORDER BY query_date desc LIMIT " . $page_first_result . ',' . $results_per_page;
+        $user_query_query = "$query ORDER BY complaint_date desc LIMIT " . $page_first_result . ',' . $results_per_page;
         $user_query_output = $conn->query($user_query_query);
         if ($user_query_output->num_rows > 0) {
             while ($user_query_result = $user_query_output->fetch_assoc()) {
@@ -612,17 +691,12 @@ function user_list($page, $query = "select * from user_details", $search_content
             ?>
             <td><input type="checkbox" name="query_status[]" value="<?= $user_query_result['id'] ?>" form="query_status" <?= $readonly ?>></td>
             <td><?= $href_path ?><?= $user_query_result['username'] ?></a></td>
-            <td><?= $href_path ?><?php
-                                    echo substr($user_query_result['query'], 0, 25);
-                                    if (strlen($user_query_result['query']) > 25) {
-                                        echo "...";
-                                    }
-                                    ?></td>
+            <td><?= $href_path ?><?= long_sentence_to_short($user_query_result['user_complaint']) ?></td>
             <td><?= $href_path ?><?= $user_query_result['status'] ?></a></td>
-            <td><?= $href_path ?><?= $user_query_result['comments'] ?></td>
+            <td><?= $href_path ?><?= long_sentence_to_short($user_query_result['comments']) ?></td>
             <td><?= $href_path ?><?= dateconvertion($user_query_result['assigned_on'], "d M y") ?></a></td>
             <td><?= $href_path ?><?= dateconvertion($user_query_result['reviewed_on'], "d M y") ?></a></td>
-            <td><?= $href_path ?><?= dateconvertion($user_query_result['query_date'], "d M y") ?></a></td>
+            <td><?= $href_path ?><?= dateconvertion($user_query_result['complaint_date'], "d M y") ?></a></td>
         </tr>
 <?php
             }
@@ -644,7 +718,7 @@ function user_list($page, $query = "select * from user_details", $search_content
     function unsolved_count()
     {
         global $conn, $username;
-        $unsolved_complaint_query = "select count(id) from user_queries where status='NOT REVIEWED' and assigned_to='$username';";
+        $unsolved_complaint_query = "select count(id) from user_queries where assigned_to='$username' and (status='Pending' or status='Processing') ;";
         $unsolved_complaint_output = $conn->query($unsolved_complaint_query);
         if ($unsolved_complaint_output->num_rows > 0) {
             $unsolved_complaint_result = $unsolved_complaint_output->fetch_assoc();
@@ -653,5 +727,13 @@ function user_list($page, $query = "select * from user_details", $search_content
             } else {
                 return $unsolved_complaint_result['count(id)'];
             }
+        }
+    }
+
+    function long_sentence_to_short($result)
+    {
+        echo substr($result, 0, 25);
+        if (strlen($result) > 25) {
+            echo "...";
         }
     }

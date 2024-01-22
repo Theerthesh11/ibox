@@ -27,24 +27,15 @@ $ip_address = getIPAddress();
         </div>
         <div class="fraction_two">
             <div class="nav-panel">
-                <a href="../user/user_complaint.php?page=status">COMPLAINT STATUS</a>
+                <a href="../user/user_complaint.php">SUPPORT</a>
                 <a href="../user/user_login.php">SIGN IN</a>
             </div>
             <div class="fraction_two_container">
                 <h2 style="text-align: center;">SUPPORT</h2>
                 <div class="form">
-                    <form action="../user/user_complaint.php" method="post">
-                        <label for="username">Username</label><br>
-                        <input type="text" name="username" id="username" value="<?= isset($_POST['username']) && !isset($_POST['clear']) ? $_POST['username'] : '' ?>"><br><br>
-                        <label for="complaint_type">Complaint Type</label><br>
-                        <select name="complaint_type" id="complaint_type">
-                            <option value="Password reset">Password reset</option>
-                            <option value="Reactivate account">Reactivate account</option>
-                            <option value="Personal info change">Personal info change</option>
-                            <option value="Others">Others</option>
-                        </select>
-                        <br>
-                        <br>
+                    <form action="../user/user_complaint_status.php" method="post">
+                        <label for="complaint_id">Complaint ID</label><br>
+                        <input type="text" name="complaint_id" id="complaint_id" value="<?= isset($_POST['username']) && !isset($_POST['clear']) ? $_POST['username'] : '' ?>"><br><br>
                         <label for="complaint">Complaint</label><br>
                         <textarea name="complaint"></textarea><br><br>
                         <div class="form-buttons" style="text-align: center;">
@@ -63,7 +54,6 @@ $ip_address = getIPAddress();
                                 $from_email = $result['email'];
                             }
                         }
-                        $complaint_type = sanitizing($_POST['complaint_type']);
                         if (!empty($_POST['complaint'])) {
                             $user_complaint = sanitizing($_POST['complaint']);
                         } else {
@@ -71,7 +61,7 @@ $ip_address = getIPAddress();
                         }
                         if (!empty($user_name) && !empty($user_complaint)) {
                             $complaint_no = random(6);
-                            $insert_query = "insert into user_queries (complaint_no,username,complaint_type,user_complaint,complaint_date) values ('$complaint_no','$user_name','$complaint_type','$user_complaint',current_timestamp);";
+                            $insert_query = "insert into user_queries (complaint_no,username,query,query_date) values ('$complaint_no','$user_name','$user_complaint',current_timestamp);";
                             if ($conn->query($insert_query)) {
                                 echo '<h6 style="text-align: center; color:black;">Complaint raised and Your complaint no ' . $complaint_no . ' </h6>';
                             }

@@ -683,6 +683,11 @@ if ($admin_details['role'] == "superadmin") {
                                                                     <input type="submit" name="query_search_btn" value="Search">
                                                                 </form>
                                                             </div>
+                                                            <div>
+                                                                <form action="admin_dashboard.php?page=Queries&option=<?= $option ?>" method="post">
+                                                                    <input type="submit" name="reviewed" value="Reviewed">
+                                                                </form>
+                                                            </div>
                                                             <?php
                                                         }
                                                         switch ($option) {
@@ -694,7 +699,7 @@ if ($admin_details['role'] == "superadmin") {
                                                         <table class="user_list">
                                                         <?php
                                                                 $_SESSION['current_option'] = "Solved";
-                                                                $solved_issue_query = "select * from user_queries where assigned_to='$username' and status='REVIEWED' ";
+                                                                $solved_issue_query = "select * from user_queries where assigned_to='$username' and status='Reviewed' ";
                                                                 admin_review_complaints($solved_issue_query);
                                                                 break;
                                                             case 'Unsolved':
@@ -704,12 +709,13 @@ if ($admin_details['role'] == "superadmin") {
                                                         <table class="user_list">
                                                         <?php
                                                                 $_SESSION['current_option'] = "Unsolved";
-                                                                $unsolved_issue_query = "select * from user_queries where assigned_to='$username' and status='NOT REVIEWED' ";
+                                                                $unsolved_issue_query = "select * from user_queries where assigned_to='$username' and (status='Pending' or status='Processing') ";
                                                                 admin_review_complaints($unsolved_issue_query);
                                                                 break;
                                                         }
                                                         if ($admin_details['role'] == "superadmin") {
                                                         ?>
+                                                        <div></div>
                                                         <div>
                                                             <form action="admin_dashboard.php?page=Queries&page_no=<?= $page_no ?>" method="post" id="query_status">
                                                                 <select name="admins" id="admins">
