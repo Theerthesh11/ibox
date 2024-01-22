@@ -94,11 +94,11 @@ $ip_address = getIPAddress();
                                             }
                                         }
                                     } else {
-                                        echo '<h6 style="text-align: center; color:red;">Account Deactivated</h6>';
+                                        echo '<h6 style="text-align: center; color:red;">Account Disabled</h6>';
                                     }
                                 }
                             } else {
-                                echo '<h6 style="text-align: center; color:red;">password must be a alphanumeric value</h6>';
+                                echo '<h6 style="text-align: center; color:red;">Password must be a alphanumeric value</h6>';
                             }
                         }
                     }

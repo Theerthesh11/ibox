@@ -94,7 +94,7 @@ if ($admin_details['role'] == "superadmin") {
                     ?>
                         <ul>
                             <li><a href="?page=Queries&option=Solved"><button <?= (isset($_GET['option']) && $_GET['option'] === 'Solved') || ($_SESSION['current_option'] == 'Solved' && !isset($_GET['option'])) ? ' class="sub-active"' : '' ?>>Solved</button></a></li>
-                            <li><a href="?page=Queries&option=Unsolved"><button <?= (isset($_GET['option']) && $_GET['option'] === 'Unsolved') || ($_SESSION['current_option'] == 'Unsolved' && !isset($_GET['option'])) ? ' class="sub-active"' : '' ?>>Unsolved</button></a></li>
+                            <li><a href="?page=Queries&option=Unsolved"><button <?= (isset($_GET['option']) && $_GET['option'] === 'Unsolved') || ($_SESSION['current_option'] == 'Unsolved' && !isset($_GET['option'])) ? ' class="sub-active"' : '' ?>>Unsolved <?= unsolved_count() ?></button></a></li>
                         </ul>
                     <?php
                     }
@@ -499,7 +499,7 @@ if ($admin_details['role'] == "superadmin") {
                                             </tr>
                                         <?php
                                         // }
-                                        $user_log_query = "select * from user_login_log";
+                                        $user_log_query = "select * from user_login_log order by login_time desc";
                                         user_login_activity($page, $user_log_query);
                                         // echo "</table></div>";
                                         break;
@@ -674,45 +674,38 @@ if ($admin_details['role'] == "superadmin") {
                                             <div class="dashboard-container">
                                                 <div class="dashboard-content">
                                                     <div class="access-options">
-                                                        <div class="search">
-                                                            <form action="admin_dashboard.php" method="get">
-                                                                <input type="search" name="query_no" placeholder="1" value="<?= isset($_GET['query_no']) ? $_GET['query_no'] : "" ?>">
-                                                                <input type="submit" name="query_search_btn" value="Search">
-                                                            </form>
-                                                        </div>
-
                                                         <?php
+                                                        if (!isset($_GET['id'])) {
+                                                        ?>
+                                                            <div class="search">
+                                                                <form action="admin_dashboard.php" method="get">
+                                                                    <input type="search" name="query_no" placeholder="1" value="<?= isset($_GET['query_no']) ? $_GET['query_no'] : "" ?>">
+                                                                    <input type="submit" name="query_search_btn" value="Search">
+                                                                </form>
+                                                            </div>
+                                                            <?php
+                                                        }
                                                         switch ($option) {
 
                                                             case 'Solved':
-                                                        ?>
-                                                                <div>
-                                                                    <form action="admin_dashboard.php?page=Queries&option=<?= $option ?>&page_no=<?= $page_no ?>" method="post" id="query_status">
-                                                                        <input type="submit" name="reviewed" value="Reviewed">
-                                                                    </form>
-                                                                </div>
+                                                            ?>
                                                     </div>
                                                     <div class="user_table">
                                                         <table class="user_list">
                                                         <?php
                                                                 $_SESSION['current_option'] = "Solved";
                                                                 $solved_issue_query = "select * from user_queries where assigned_to='$username' and status='REVIEWED' ";
-                                                                user_query_search($solved_issue_query);
+                                                                admin_review_complaints($solved_issue_query);
                                                                 break;
                                                             case 'Unsolved':
                                                         ?>
-                                                            <div>
-                                                                <form action="admin_dashboard.php?page=Queries&option=<?= $option ?>&page_no=<?= $page_no ?>" method="post" id="query_status">
-                                                                    <input type="submit" name="reviewed" value="Reviewed">
-                                                                </form>
-                                                            </div>
                                                     </div>
                                                     <div class="user_table">
                                                         <table class="user_list">
                                                         <?php
                                                                 $_SESSION['current_option'] = "Unsolved";
                                                                 $unsolved_issue_query = "select * from user_queries where assigned_to='$username' and status='NOT REVIEWED' ";
-                                                                user_query_search($unsolved_issue_query);
+                                                                admin_review_complaints($unsolved_issue_query);
                                                                 break;
                                                         }
                                                         if ($admin_details['role'] == "superadmin") {
@@ -722,7 +715,7 @@ if ($admin_details['role'] == "superadmin") {
                                                                 <select name="admins" id="admins">
                                                                     <option value="none" selected disabled hidden>ADMINS</option>
                                                                     <?php
-                                                                    $admin_fetch_query = "select username from admin_details;";
+                                                                    $admin_fetch_query = "select username from admin_details where role='admin';";
                                                                     $admin_output = $conn->query($admin_fetch_query);
                                                                     if ($admin_output->num_rows > 0) {
                                                                         while ($admin_result = $admin_output->fetch_assoc()) {

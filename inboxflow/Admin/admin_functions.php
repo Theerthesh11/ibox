@@ -327,7 +327,6 @@ function user_list($page, $query = "select * from user_details", $search_content
     }
     function user_query($query = "select * from user_queries")
     {
-        // require "config.php";
         global $conn, $admin_details, $option;
 
         $results_per_page = 10;
@@ -488,4 +487,171 @@ function user_list($page, $query = "select * from user_details", $search_content
     function alert_message($message)
     {
         echo '<div class="alert-message"><p>' . $message . '</p></div>';
+    }
+
+    function admin_review_complaints($user_complaint_query = "select * from user_queries")
+    {
+        global $conn, $page_no, $username, $option;
+        if (isset($_GET['query_no'])) {
+            $query_search =  !empty($_GET['query_no']) ? sanitizing($_GET['query_no']) : '';
+            $admin_search_query = "select * from user_queries where id like '%$query_search%'";
+            $admin_search_output = $conn->query($admin_search_query);
+            if ($admin_search_output->num_rows > 0) {
+                user_query($admin_search_query);
+            } else {
+                user_query($user_complaint_query);
+            }
+        } elseif (isset($_GET['id'])) {
+            $id = sanitizing($_GET['id']);
+            $get_complaint_query = "select * from user_queries where id='$id';";
+            $get_complaint_output = $conn->query($get_complaint_query);
+            if ($get_complaint_output->num_rows > 0) {
+                $complaint = $get_complaint_output->fetch_assoc();
+            }
+?>
+    <div>
+        <form action="admin_dashboard.php?page=Queries&option=<?= $option ?>&page_no=<?= $page_no ?>&id=<?= $id ?>" method="post">
+            <div>
+                <input type="submit" name="reviewed" value="Reviewed">
+            </div>
+            <div class="complaint-view-form">
+                <div class="complaint-textbox">
+                    <label for="query_id">ID</label>
+                    <input type="text" name="complaint_id" id="query_id" value="<?= $complaint['id'] ?>" readonly>
+                    <input type="checkbox" value="<?= $complaint['id'] ?>" name="query_status[]" style="margin: 0px 20px;">
+                </div>
+                <div class="complaint-textbox">
+                    <label for="username" style="padding: 8px 17px;">USERNAME</label>
+                    <input type="text" name="username" id="username" value="<?= $complaint['username'] ?>" readonly>
+                </div>
+                <div class="complaint-textbox">
+                    <label for="date" style="padding: 8px 36px;">DATE</label>
+                    <input type="text" name="query_date" id="date" value="<?= dateconvertion($complaint['query_date'], "d M y") ?>" readonly>
+                </div>
+            </div>
+            <div class="complaint-view-form">
+                <div class="complaint-textbox">
+                    <label for="status" style="padding: 8px 27px;">STATUS</label>
+                    <input type="text" name="status" id="status" value="<?= $complaint['status'] ?>" readonly>
+                </div>
+                <div class="complaint-textbox">
+                    <label for="reviewed_on">REVIEWED ON</label>
+                    <input type="text" name="reviewed_on" id="reviewed_on" value="<?= dateconvertion($complaint['reviewed_on'], "d M y") ?>" readonly>
+                </div>
+                <div class="complaint-textbox">
+                    <label for="reviewed_by">REVIEWED BY</label>
+                    <input type="text" name="reviewed_by" id="reviewed_by" value="<?= $complaint['reviewed_by'] ?>" readonly>
+                </div>
+            </div>
+            <div class="query">
+                <label for="query">QUERY</label>
+                <textarea name="complaint_query" id="query" readonly><?= $complaint['query'] ?></textarea>
+            </div><br><br>
+            <div class="query">
+                <label for="query">COMMENTS</label>
+                <textarea name="admin_comments" id="query"><?= $complaint['comments'] ?></textarea>
+            </div>
+        </form>
+    </div>
+<?php
+        } else {
+?>
+    <tr style="text-align: center;color:white; background:hsla(246, 100%, 73%, 1);box-shadow:3px 3px 6px rgb(215, 212, 255);">
+        <th style="width: 5%;"></th>
+        <th style="width: 10%;">USERNAME</th>
+        <th style="width: 25%;">QUERY</th>
+        <th style="width: 10%;">STATUS</th>
+        <th style="width:20%;">COMMENTS</th>
+        <th style="width: 10%;">ASSIGNED ON</th>
+        <th style="width: 10%;">REVIEWED ON</th>
+        <th style="width: 10%;">DATE</th>
+    </tr>
+    <?php
+
+            user_query_admin_view($user_complaint_query);
+        }
+        $checkbox_value = !empty($_POST['query_status']) ? $_POST['query_status'] : array();
+        $admin_comments = !empty($_POST['admin_comments']) ? sanitizing($_POST['admin_comments']) : NULL;
+        if (isset($_POST['reviewed']) && !empty($admin_comments)) {
+            foreach ($checkbox_value as $id) {
+                $reviewed_query = "update user_queries set reviewed_by='$username',reviewed_on=current_timestamp,status='REVIEWED', comments='$admin_comments' where id='$id' and assigned_to='$username';";
+                $conn->query($reviewed_query);
+            }
+        }
+    }
+    function user_query_admin_view($query = "select * from user_queries")
+    {
+        global $conn, $admin_details, $option;
+        $results_per_page = 10;
+        $result = $conn->query($query);
+        $number_of_result = $result->num_rows;
+        $number_of_page = ceil($number_of_result / $results_per_page);
+        if (!isset($_GET['page_no'])) {
+            $page_no = 1;
+        } else {
+            $page_no = $_GET['page_no'];
+        }
+        $page_first_result = ($page_no - 1) * $results_per_page;
+        $user_query_query = "$query ORDER BY query_date desc LIMIT " . $page_first_result . ',' . $results_per_page;
+        $user_query_output = $conn->query($user_query_query);
+        if ($user_query_output->num_rows > 0) {
+            while ($user_query_result = $user_query_output->fetch_assoc()) {
+                if ($admin_details['role'] == "superadmin") {
+                    $href_path = '<a href="admin_dashboard.php?page=Queries&page_no=' . $page_no . '&id=' . $user_query_result['id'] . '">';
+                } else {
+                    $href_path = '<a href="admin_dashboard.php?page=Queries&option=' . $option . '&page_no=' . $page_no . '&id=' . $user_query_result['id'] . '">';
+                }
+    ?>
+        <tr style="text-align:center;">
+            <?php
+                if ($user_query_result['status'] == "REVIEWED") {
+                    $readonly = "readonly";
+                } else {
+                    $readonly = "";
+                }
+            ?>
+            <td><input type="checkbox" name="query_status[]" value="<?= $user_query_result['id'] ?>" form="query_status" <?= $readonly ?>></td>
+            <td><?= $href_path ?><?= $user_query_result['username'] ?></a></td>
+            <td><?= $href_path ?><?php
+                                    echo substr($user_query_result['query'], 0, 25);
+                                    if (strlen($user_query_result['query']) > 25) {
+                                        echo "...";
+                                    }
+                                    ?></td>
+            <td><?= $href_path ?><?= $user_query_result['status'] ?></a></td>
+            <td><?= $href_path ?><?= $user_query_result['comments'] ?></td>
+            <td><?= $href_path ?><?= dateconvertion($user_query_result['assigned_on'], "d M y") ?></a></td>
+            <td><?= $href_path ?><?= dateconvertion($user_query_result['reviewed_on'], "d M y") ?></a></td>
+            <td><?= $href_path ?><?= dateconvertion($user_query_result['query_date'], "d M y") ?></a></td>
+        </tr>
+<?php
+            }
+        }
+        if (isset($_GET['query_no'])) {
+            $query_parameter = 'query_no=' . $_GET['query_no'];
+        } else {
+            $query_parameter = 'page=Queries';
+        }
+        echo '<div class="admin_page_numbers">';
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=1"><<</a></button>';
+        for ($page_no = 1; $page_no <= $number_of_page; $page_no++) {
+            echo '<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
+        }
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>></a></button>';
+        echo "</div><br>";
+    }
+
+    function unsolved_count()
+    {
+        global $conn, $username;
+        $unsolved_complaint_query = "select count(id) from user_queries where status='NOT REVIEWED' and assigned_to='$username';";
+        $unsolved_complaint_output = $conn->query($unsolved_complaint_query);
+        if ($unsolved_complaint_output->num_rows > 0) {
+            $unsolved_complaint_result = $unsolved_complaint_output->fetch_assoc();
+            if ($unsolved_complaint_result['count(id)'] == 0) {
+                return;
+            } else {
+                return $unsolved_complaint_result['count(id)'];
+            }
+        }
     }

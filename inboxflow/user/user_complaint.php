@@ -58,9 +58,10 @@ $ip_address = getIPAddress();
                             $user_complaint = "";
                         }
                         if (!empty($user_name) && !empty($user_complaint)) {
-                            $insert_query = "insert into user_queries (username,query,query_date) values ('$user_name','$user_complaint',current_timestamp);";
+                            $complaint_no=random(6);
+                            $insert_query = "insert into user_queries (complaint_no,username,query,query_date) values ('$complaint_no','$user_name','$user_complaint',current_timestamp);";
                             if ($conn->query($insert_query)) {
-                                echo '<h6 style="text-align: center; color:black;">Complaint raised</h6>';
+                                echo '<h6 style="text-align: center; color:black;">Complaint raised and Your complaint no '.$complaint_no.' </h6>';
                             }
                         }else{
                             echo '<h6 style="text-align: center; color:black;">Fill the complaint boxes</h6>';
