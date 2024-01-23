@@ -33,7 +33,7 @@ require_once 'admin_functions.php';
                         <!--login form-->
                         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
                             <label for="username">Username</label><br>
-                            <input type="text" name="username" id="username" value="<?= (!empty(sanitizing($_POST['username'])) && !isset($_POST['clear'])) ? sanitizing($_POST['username']) : '' ?>"><br><br>
+                            <input type="text" name="username" id="username" value="<?= (!empty($_POST['username']) && !isset($_POST['clear'])) ? sanitizing($_POST['username']) : '' ?>"><br><br>
                             <label for="password">Password</label><br>
                             <input type="password" name="password" placeholder=""><br><br>
                             <div class="form-buttons">

@@ -27,7 +27,7 @@ $ip_address = getIPAddress();
         </div>
         <div class="fraction_two">
             <div class="nav-panel">
-                <a href="../user/user_complaint.php?page=status">COMPLAINT STATUS</a>
+                <a href="../user/user_complaint_status.php">COMPLAINT STATUS</a>
                 <a href="../user/user_login.php">SIGN IN</a>
             </div>
             <div class="fraction_two_container">
