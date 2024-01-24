@@ -18,9 +18,9 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
                     $starred_status = "sender_starred_status";
                 } elseif ($mail_details_result['reciever_email'] == $user_details_result['email']) {
                     $starred_status = "reciever_starred_status";
-                } elseif ($mail_details_result['cc'] == $email) {
+                } elseif ($mail_details_result['cc'] == $user_details_result['email']) {
                     $starred_status = "cc_starred_status";
-                } elseif ($mail_details_result['bcc'] == $email) {
+                } elseif ($mail_details_result['bcc'] == $user_details_result['email']) {
                     $starred_status = "bcc_starred_status";
                 }
             }
@@ -56,7 +56,7 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
         $inbox_output = $conn->query($inbox_query);
         if ($inbox_output->num_rows > 0) {
             echo "<div class=\"table-container\"><table>";
-            pagination("Inbox", $inbox_query, $inbox_output, $page_no);
+            email_list("Inbox", $inbox_query, $inbox_output, $page_no);
             echo "</form></table></div>";
         } else {
             echo "<div class=\"alert-message\"><p>No mails in inbox</p></div>";
@@ -69,7 +69,7 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
         $unread_output = $conn->query($unread_query);
         if ($unread_output->num_rows > 0) {
             echo "<div class=\"table-container\"><table>";
-            pagination("Unread", $unread_query, $unread_output, $page_no);
+            email_list("Unread", $unread_query, $unread_output, $page_no);
             echo "</table></div>";
         } else {
             echo "<div class=\"alert-message\"><p>All mails have been read already</p></div>";
@@ -82,7 +82,7 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
         $sent_output = $conn->query($sent_query);
         if ($sent_output->num_rows > 0) {
             echo "<div class=\"table-container\"><table>";
-            pagination("Sent", $sent_query, $sent_output, $page_no);
+            email_list("Sent", $sent_query, $sent_output, $page_no);
             echo "</table></div>";
         } else {
             echo "<div class=\"alert-message\"><p>No sent messages! <a href=\"email.php?page=Email&option=Compose\">Send</a> one now!</p></div>";
@@ -95,7 +95,7 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
         $draft_output = $conn->query($draft_query);
         if ($draft_output->num_rows > 0) {
             echo "<div class=\"table-container\"><table>";
-            pagination("Draft", $draft_query, $draft_output, $page_no);
+            email_list("Draft", $draft_query, $draft_output, $page_no);
             echo "</table></div>";
         } else {
             echo "<div class=\"alert-message\"><p>No draft mails</p></div>";
@@ -108,7 +108,7 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
         $starred_output = $conn->query($starred_query);
         if ($starred_output->num_rows > 0) {
             echo "<div class=\"table-container\"><table>";
-            pagination("Starred", $starred_query, $starred_output, $page_no);
+            email_list("Starred", $starred_query, $starred_output, $page_no);
             echo "</table></div>";
         } else {
             echo "<div class=\"alert-message\"><p>No starred mails</p></div>";
@@ -121,7 +121,7 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
         $archive_output = $conn->query($archive_query);
         if ($archive_output->num_rows > 0) {
             echo "<div class=\"table-container\"><table>";
-            pagination("Archived", $archive_query, $archive_output, $page_no);
+            email_list("Archived", $archive_query, $archive_output, $page_no);
             echo "</table></div>";
         } else {
             echo "<div class=\"alert-message\"><p>No archived mails</p></div>";
@@ -134,7 +134,7 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
         $trash_output = $conn->query($trash_query);
         if ($trash_output->num_rows > 0) {
             echo "<div class=\"table-container\"><table>";
-            pagination("Trash", $trash_query, $trash_output, $page_no);
+            email_list("Trash", $trash_query, $trash_output, $page_no);
             echo "</table></div>";
         } else {
             echo "<div class=\"alert-message\"><p>No deleted mails</p></div>";
@@ -147,7 +147,7 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
         $spam_output = $conn->query($spam_query);
         if ($spam_output->num_rows > 0) {
             echo "<div class=\"table-container\"><table>";
-            pagination("Spam", $spam_query, $spam_output, $page_no);
+            email_list("Spam", $spam_query, $spam_output, $page_no);
             echo "</table></div>";
         } else {
             echo "<div class=\"alert-message\"><p>No Spam mails</p></div>";
@@ -164,7 +164,7 @@ elseif (isset($_GET['search']) && !isset($_GET['token'])) {
         $search_output = $conn->query($search_query);
         if ($search_output->num_rows > 0) {
             echo "<div class=\"table-container\"><table>";
-            search_pagination($search_query, $search_output, $page_no, $search_content);
+            search_list($search_query, $search_output, $page_no, $search_content);
             echo "</table></div>";
         } else {
             echo "<div class=\"alert-message\"><p>No results found</p></div>";

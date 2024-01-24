@@ -2,7 +2,26 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 require_once "../config.php";
+//this function decides whether the html input type is readonly or hidden
+function readonly_or_hidden($column1, $value1, $value2)
+{
+    if ($column1 == $value1) {
+        $readonly = $value2;
+    } else {
+        $readonly = "";
+    }
+    return $readonly;
+}
 
+function readonly($column_name)
+{
+    if (!empty($column_name)) {
+        $readonly = "readonly";
+    } else {
+        $readonly = "";
+    }
+    return $readonly;
+}
 //function for pagination
 function pagination($query, $order_part = "", int $results_per_page = 10)
 {
@@ -159,13 +178,17 @@ function user_list($page, $query = "select * from user_details")
         <td style="text-align:center;"><?= dateconvertion($login_activity_result['logout_time'], "d M y h:i:s") ?></td>
     <?php
         }
-
-        echo '<div class="admin_page_numbers">';
-        echo '<button style="width:40px;"><a href = "admin_dashboard.php?page=' . $page . '&page_no=1"><<</a></button>';
-        for ($page_no = 1; $page_no <=  $pagination_output[1]; $page_no++) {
-            echo '<button><a href = "admin_dashboard.php?page=' . $page . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
+        if (isset($_GET['search'])) {
+            $query_parameter = 'from_date=' . $_GET['from_date'] . '&to_date=' . $_GET['to_date'] . '&search=' . $_GET['search'];
+        } else {
+            $query_parameter = 'page=Login Activity';
         }
-        echo '<button style="width:40px;"><a href = "admin_dashboard.php?page=' . $page . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
+        echo '<div class="admin_page_numbers">';
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=1"><<</a></button>';
+        for ($page_no = 1; $page_no <=  $pagination_output[1]; $page_no++) {
+            echo '<button><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
+        }
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
         echo "</div><br>";
     }
     function user_login_activity($page, $query)
@@ -178,15 +201,20 @@ function user_list($page, $query = "select * from user_details")
         <td><?= $user_login_result['login_status'] ?></td>
         <td style="text-align:center;"><?= dateconvertion($user_login_result['login_time'], "d M y h:i:s") ?></td>
         <td style="text-align:center;"><?= dateconvertion($user_login_result['logout_time'], "d M y h:i:s") ?></td>
-    <?php
+    </tr>
+<?php
         }
-
+        if (isset($_GET['user_log'])) {
+            $query_parameter = 'username=' . $_GET['username'] . '&from_date=' . $_GET['from_date'] . '&to_date=' . $_GET['to_date'] . '&user_log=' . $_GET['user_log'];
+        } else {
+            $query_parameter = 'page=User log';
+        }
         echo '<div class="admin_page_numbers">';
-        echo '<button style="width:40px;"><a href = "admin_dashboard.php?page=' . $page . '&page_no=1"><<</a></button>';
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=1"><<</a></button>';
         for ($page_no = 1; $page_no <= $pagination_output[1]; $page_no++) {
-            echo '<button><a href = "admin_dashboard.php?page=' . $page . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
+            echo '<button><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
         }
-        echo '<button style="width:40px;"><a href = "admin_dashboard.php?page=' . $page . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
         echo "</div><br>";
     }
     //this function returns individual sent and recieved mails
@@ -211,7 +239,7 @@ function user_list($page, $query = "select * from user_details")
     {
         $pagination_output = pagination($query, "order by created_on desc");
         while ($admin_details_result =  $pagination_output[0]->fetch_assoc()) {
-    ?>
+?>
     <tr style="text-align:center;">
         <td><?= $admin_details_result['emp_id'] ?></td>
         <td><?= $admin_details_result['username'] ?></td>
@@ -279,14 +307,7 @@ function user_list($page, $query = "select * from user_details")
             }
 ?>
     <tr style="text-align:center;">
-        <?php
-            if ($user_query_result['status'] == "Reviewed") {
-                $readonly = "readonly";
-            } else {
-                $readonly = "";
-            }
-        ?>
-        <td><input type="checkbox" name="query_status[]" value="<?= $user_query_result['complaint_no'] ?>" form="query_status" <?= $readonly ?>></td>
+        <td><input type="checkbox" name="query_status[]" value="<?= $user_query_result['complaint_no'] ?>" form="query_status" <?= readonly_or_hidden($user_query_result['status'], "Reviewed", "readonly") ?>></td>
         <td><?= $href_path ?><?= $user_query_result['username'] ?></a></td>
         <td><?= $href_path ?><?= long_sentence_to_short($user_query_result['user_complaint']) ?></td>
         <td><?= $href_path ?><?= $user_query_result['status'] ?></a></td>
@@ -296,7 +317,7 @@ function user_list($page, $query = "select * from user_details")
         <td><?= $href_path ?><?= dateconvertion($user_query_result['reviewed_on']) ?></a></td>
         <td><?= $href_path ?><?= dateconvertion($user_query_result['complaint_date']) ?></a></td>
     </tr>
-<?php
+    <?php
         }
         if (isset($_GET['query_no'])) {
             $query_parameter = 'query_no=' . $_GET['query_no'];
@@ -315,12 +336,25 @@ function user_list($page, $query = "select * from user_details")
     }
     function user_query_search($user_complaint_query = "select * from user_queries")
     {
-        global $conn, $page_no, $username;
+        global $conn, $username;
         if (isset($_GET['query_no'])) {
-            $query_search =  !empty($_GET['query_no']) ? sanitizing($_GET['query_no']) : '';
-            $admin_search_query = "select * from user_queries where id like '%$query_search%'";
+            $query_search =  !empty($_GET['query_no']) ? $_GET['query_no'] : '';
+            $admin_search_query = "select * from user_queries where complaint_no like '%$query_search%'";
             $admin_search_output = $conn->query($admin_search_query);
             if ($admin_search_output->num_rows > 0) {
+    ?>
+        <tr style="text-align: center;color:white; background:hsla(246, 100%, 73%, 1);box-shadow:3px 3px 6px rgb(215, 212, 255);">
+            <th style="width: 5%;"></th>
+            <th style="width: 10%;">USERNAME</th>
+            <th style="width: 25%;">QUERY</th>
+            <th style="width: 10%;">STATUS</th>
+            <th style="width: 10%;">ASSIGNED TO</th>
+            <th style="width: 10%;">ASSIGNED BY</th>
+            <th style="width: 10%;">ASSIGNED ON</th>
+            <th style="width: 10%;">REVIEWED ON</th>
+            <th style="width: 10%;">DATE</th>
+        </tr>
+    <?php
                 user_query($admin_search_query);
             } else {
                 user_query($user_complaint_query);
@@ -332,16 +366,11 @@ function user_list($page, $query = "select * from user_details")
             if ($get_complaint_output->num_rows > 0) {
                 $complaint = $get_complaint_output->fetch_assoc();
             }
-            if ($complaint['status'] == "Reviewed") {
-                $readonly = "hidden";
-            } else {
-                $readonly = "";
-            }
-?>
+    ?>
     <div>
         <div class="complaint-view-form">
             <div class="complaint-textbox">
-                <input type="checkbox" value="<?= $complaint['complaint_no'] ?>" name="query_status[]" <?= $readonly ?> form="query_status" style="margin:0px 20px;">
+                <input type="checkbox" value="<?= $complaint['complaint_no'] ?>" name="query_status[]" <?= readonly_or_hidden($complaint['status'], "Reviewed",  "hidden") ?> form="query_status" style="margin:0px 20px;">
                 <label for="query_id">Complaint no</label>
                 <input type="text" name="query_status[]" id="query_id" value="<?= $complaint['complaint_no'] ?>" readonly style="width: 37%;">
             </div>
@@ -398,7 +427,6 @@ function user_list($page, $query = "select * from user_details")
                 </tr>
                 <?php
                 if ($complaint['user_reply_1'] != NULL || $complaint['support_reply_1'] != NULL) {
-                    $readonly = "readonly";
                 ?>
                     <tr>
                         <td><textarea name="user_reply_1" readonly maxlength="100"><?= $complaint['user_reply_1'] ?></textarea></td>
@@ -411,6 +439,22 @@ function user_list($page, $query = "select * from user_details")
                     <tr>
                         <td><textarea name="user_reply_2" readonly maxlength="100"><?= $complaint['user_reply_2'] ?></textarea></td>
                         <td><textarea name="support_reply_2" maxlength="100"><?= $complaint['support_reply_2'] ?></textarea></td>
+                    </tr>
+                <?php
+                }
+                if ($complaint['user_reply_3'] != NULL || $complaint['support_reply_3'] != NULL) {
+                ?>
+                    <tr>
+                        <td><textarea name="user_reply_3" readonly maxlength="100"><?= $complaint['user_reply_3'] ?></textarea></td>
+                        <td><textarea name="support_reply_3" maxlength="100"><?= $complaint['support_reply_3'] ?></textarea></td>
+                    </tr>
+                <?php
+                }
+                if ($complaint['user_reply_4'] != NULL || $complaint['support_reply_4'] != NULL) {
+                ?>
+                    <tr>
+                        <td><textarea name="user_reply_4" readonly maxlength="100"><?= $complaint['user_reply_4'] ?></textarea></td>
+                        <td><textarea name="support_reply_4" maxlength="100"><?= $complaint['support_reply_4'] ?></textarea></td>
                     </tr>
                 <?php
                 }
@@ -469,11 +513,6 @@ function user_list($page, $query = "select * from user_details")
             if ($get_complaint_output->num_rows > 0) {
                 $complaint = $get_complaint_output->fetch_assoc();
             }
-            if ($complaint['status'] == "Reviewed") {
-                $readonly = "hidden";
-            } else {
-                $readonly = "";
-            }
 ?>
     <div>
         <form action="admin_dashboard.php?page=Queries&option=<?= $option ?>&page_no=<?= $page_no ?>&complaint_no=<?= $complaint_no ?>" method="post">
@@ -484,7 +523,7 @@ function user_list($page, $query = "select * from user_details")
                 <div class="complaint-textbox">
                     <label for="query_id">Complaint No</label>
                     <input type="text" name="complaint_id" id="query_id" value="<?= $complaint['complaint_no'] ?>" readonly>
-                    <input type="checkbox" value="<?= $complaint['complaint_no'] ?>" name="query_status[]" <?= $readonly ?>>
+                    <input type="checkbox" value="<?= $complaint['complaint_no'] ?>" name="query_status[]" <?= readonly_or_hidden($complaint['status'], "Reviewed", "hidden") ?>>
                 </div>
                 <div class="complaint-textbox">
                     <label for="username" style="padding: 8px 17px;">Username</label>
@@ -520,8 +559,8 @@ function user_list($page, $query = "select * from user_details")
                     <input type="text" name="reviewed_on" id="reviewed_on" value="<?= dateconvertion($complaint['reviewed_on'], "d M y") ?>" readonly>
                 </div>
                 <div class="complaint-textbox">
-                    <label for="reviewed_by">Reviewed by</label>
-                    <input type="text" name="reviewed_by" id="reviewed_by" value="<?= $complaint['reviewed_by'] ?>" readonly>
+                    <label for="Complaint_sub">Complaint sub</label>
+                    <input type="text" name="Complaint sub" id="Complaint_sub" value="<?= $complaint['complaint_type'] ?>" readonly>
                 </div>
             </div>
             <div class="query">
@@ -532,15 +571,14 @@ function user_list($page, $query = "select * from user_details")
                     </tr>
                     <tr>
                         <td><textarea name="user_complaint" readonly maxlength="100"><?= $complaint['user_complaint'] ?></textarea></td>
-                        <td><textarea name="support_reply" maxlength="100"><?= $complaint['support_reply'] ?></textarea></td>
+                        <td><textarea name="support_reply" maxlength="100" <?= readonly($complaint['support_reply']) ?>><?= $complaint['support_reply'] ?></textarea></td>
                     </tr>
                     <?php
                     if ($complaint['user_reply_1'] != NULL || $complaint['support_reply_1'] != NULL) {
-                        $readonly = "readonly";
                     ?>
                         <tr>
                             <td><textarea name="user_reply_1" readonly maxlength="100"><?= $complaint['user_reply_1'] ?></textarea></td>
-                            <td><textarea name="support_reply_1" maxlength="100"><?= $complaint['support_reply_1'] ?></textarea></td>
+                            <td><textarea name="support_reply_1" maxlength="100" <?= readonly($complaint['support_reply_1']) ?>><?= $complaint['support_reply_1'] ?></textarea></td>
                         </tr>
                     <?php
                     }
@@ -548,7 +586,23 @@ function user_list($page, $query = "select * from user_details")
                     ?>
                         <tr>
                             <td><textarea name="user_reply_2" readonly maxlength="100"><?= $complaint['user_reply_2'] ?></textarea></td>
-                            <td><textarea name="support_reply_2" maxlength="100"><?= $complaint['support_reply_2'] ?></textarea></td>
+                            <td><textarea name="support_reply_2" maxlength="100" <?= readonly($complaint['support_reply_2']) ?>><?= $complaint['support_reply_2'] ?></textarea></td>
+                        </tr>
+                    <?php
+                    }
+                    if ($complaint['user_reply_3'] != NULL || $complaint['support_reply_3'] != NULL) {
+                    ?>
+                        <tr>
+                            <td><textarea name="user_reply_3" readonly maxlength="100"><?= $complaint['user_reply_3'] ?></textarea></td>
+                            <td><textarea name="support_reply_3" maxlength="100" <?= readonly($complaint['support_reply_3']) ?>><?= $complaint['support_reply_3'] ?></textarea></td>
+                        </tr>
+                    <?php
+                    }
+                    if ($complaint['user_reply_4'] != NULL || $complaint['support_reply_4'] != NULL) {
+                    ?>
+                        <tr>
+                            <td><textarea name="user_reply_4" readonly maxlength="100"><?= $complaint['user_reply_4'] ?></textarea></td>
+                            <td><textarea name="support_reply_4" maxlength="100" <?= readonly($complaint['support_reply_4']) ?>><?= $complaint['support_reply_4'] ?></textarea></td>
                         </tr>
                     <?php
                     }
@@ -585,9 +639,11 @@ function user_list($page, $query = "select * from user_details")
         $support_reply = !empty($_POST['support_reply']) ? sanitizing($_POST['support_reply']) : NULL;
         $support_reply_1 = !empty($_POST['support_reply_1']) ? sanitizing($_POST['support_reply_1']) : NULL;
         $support_reply_2 = !empty($_POST['support_reply_2']) ? sanitizing($_POST['support_reply_2']) : NULL;
+        $support_reply_3 = !empty($_POST['support_reply_3']) ? sanitizing($_POST['support_reply_3']) : NULL;
+        $support_reply_4 = !empty($_POST['support_reply_4']) ? sanitizing($_POST['support_reply_4']) : NULL;
         if (isset($_POST['reviewed'])) {
             foreach ($checkbox_value as $id) {
-                $reviewed_query = "update user_queries set reviewed_by='$username',reviewed_on=current_timestamp,status='$status', comments='$admin_comments',support_reply='$support_reply',support_reply_1='$support_reply_1',support_reply_2='$support_reply_2' where complaint_no='$complaint_no' and assigned_to='$username';";
+                $reviewed_query = "update user_queries set reviewed_by='$username',reviewed_on=current_timestamp,status='$status', comments='$admin_comments',support_reply='$support_reply',support_reply_1='$support_reply_1',support_reply_2='$support_reply_2',support_reply_3='$support_reply_3',support_reply_4='$support_reply_4' where complaint_no='$complaint_no' and assigned_to='$username';";
                 $conn->query($reviewed_query);
             }
         }
@@ -604,14 +660,7 @@ function user_list($page, $query = "select * from user_details")
             }
 ?>
     <tr style="text-align:center;">
-        <?php
-            if ($user_query_result['status'] == "Reviewed") {
-                $readonly = "readonly";
-            } else {
-                $readonly = "";
-            }
-        ?>
-        <td><input type="checkbox" name="query_status[]" value="<?= $user_query_result['complaint_no'] ?>" form="query_status" <?= $readonly ?>></td>
+        <td><input type="checkbox" name="query_status[]" value="<?= $user_query_result['complaint_no'] ?>" form="query_status" <?= readonly_or_hidden($user_query_result['status'], "Reviewed",  "readonly") ?>></td>
         <td><?= $href_path ?><?= $user_query_result['username'] ?></a></td>
         <td><?= $href_path ?><?= long_sentence_to_short($user_query_result['user_complaint']) ?></td>
         <td><?= $href_path ?><?= $user_query_result['status'] ?></a></td>

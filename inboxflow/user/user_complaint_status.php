@@ -22,6 +22,9 @@ $ip_address = getIPAddress();
 <body>
     <div class="overall-container">
         <div class="form-container">
+            <div class="navigation-anchor">
+                <a href="../user/user_login.php">SIGN IN</a>
+            </div>
             <div class="heading">
                 <h4>Complaint Status</h4>
             </div>
@@ -29,15 +32,14 @@ $ip_address = getIPAddress();
                 <div class="text-boxes">
                     <div>
                         <label for="complaint_no">Complaint No.</label>
-                        <input type="text" name="complaint_no" id="complaint_no" value="<?= !empty($_POST['complaint_no']) ? $_POST['complaint_no'] : ""; ?>" required>
+                        <input type="text" name="complaint_no" id="complaint_no" value="<?= !empty($_POST['complaint_no']) && !isset($_POST['clear_btn']) ? $_POST['complaint_no'] : ""; ?>" required>
                         <label for="username">Username</label>
-                        <input type="text" name="username" id="username" value="<?= !empty($_POST['username']) ? $_POST['username'] : ""; ?>" required>
+                        <input type="text" name="username" id="username" value="<?= !empty($_POST['username']) && !isset($_POST['clear_btn']) ? $_POST['username'] : ""; ?>" required>
                     </div>
                 </div>
                 <div class="form-btns">
                     <input type="submit" name="check" value="CHECK">
                     <input type="submit" name="clear_btn" value="CLEAR">
-                    <!-- <a href="user_login.php">Sign in</a> -->
                 </div>
                 <?php
                 if (isset($_POST['check']) || isset($_POST['send'])) {
@@ -50,6 +52,8 @@ $ip_address = getIPAddress();
                             while ($complaint = $get_complaint_output->fetch_assoc()) {
                 ?>
                                 <div class="form-table">
+                                    <h5 style="text-align: center;color:grey;">Note: You will only get 5 replies from the support team, APPEAL wisely</h5>
+                                    <h5 style="color: green;text-align:center;">STATUS :<?=$complaint['status']?></h5>
                                     <table class="query">
                                         <tr>
                                             <th>Your Complaint</th>
@@ -82,11 +86,41 @@ $ip_address = getIPAddress();
                                                 <td><textarea name="user_reply_2" <?= $readonly ?>><?= $complaint['user_reply_2'] ?></textarea></td>
                                                 <td><textarea name="support_reply_2" readonly><?= $complaint['support_reply_2'] ?></textarea></td>
                                             </tr>
+                                        <?php
+                                        }
+                                        if (!empty($complaint['support_reply_2'])) {
+                                            if (!empty($complaint['user_reply_3'])) {
+                                                $readonly = "readonly";
+                                            } else {
+                                                $readonly = "";
+                                            } ?>
+                                            <tr>
+                                                <td><textarea name="user_reply_3" <?= $readonly ?>><?= $complaint['user_reply_3'] ?></textarea></td>
+                                                <td><textarea name="support_reply_3" readonly><?= $complaint['support_reply_3'] ?></textarea></td>
+                                            </tr>
+                                        <?php
+                                        }
+                                        if (!empty($complaint['support_reply_3'])) {
+                                            if (!empty($complaint['user_reply_4'])) {
+                                                $readonly = "readonly";
+                                            } else {
+                                                $readonly = "";
+                                            } ?>
+                                            <tr>
+                                                <td><textarea name="user_reply_4" <?= $readonly ?>><?= $complaint['user_reply_4'] ?></textarea></td>
+                                                <td><textarea name="support_reply_4" readonly><?= $complaint['support_reply_4'] ?></textarea></td>
+                                            </tr>
                                         <?php } ?>
                                     </table>
-                                    <div style="text-align: center;">
-                                        <input type="submit" name="send" value="Submit">
-                                    </div>
+                                    <?php
+                                    if ($complaint['support_reply_4'] == NULL) {
+                                    ?>
+                                        <div style="text-align: center;">
+                                            <input type="submit" name="send" value="Submit">
+                                        </div>
+                                    <?php
+                                    }
+                                    ?>
 
             </form>
         </div>
@@ -94,13 +128,19 @@ $ip_address = getIPAddress();
                             }
                         }
                     }
+                } else {
+                    echo '<div style="display: flex;justify-content: center;margin: 10% 10% 10% 5%;">
+                    <img src="../Images/logo.png" alt="">
+                </div>';
                 }
                 if (isset($_POST['send'])) {
                     $username = !empty($_POST['username']) ? sanitizing($_POST['username']) : NULL;
                     $complaint_no = !empty($_POST['complaint_no']) ? sanitizing($_POST['complaint_no']) : NULL;
                     $user_reply_1 = !empty($_POST['user_reply_1']) ? sanitizing($_POST['user_reply_1']) : NULL;
                     $user_reply_2 = !empty($_POST['user_reply_2']) ? sanitizing($_POST['user_reply_2']) : NULL;
-                    $complaint_update_query = "update user_queries set user_reply_1='$user_reply_1',user_reply_2='$user_reply_2' where username='$username' and complaint_no='$complaint_no';";
+                    $user_reply_3 = !empty($_POST['user_reply_3']) ? sanitizing($_POST['user_reply_3']) : NULL;
+                    $user_reply_4 = !empty($_POST['user_reply_4']) ? sanitizing($_POST['user_reply_4']) : NULL;
+                    $complaint_update_query = "update user_queries set user_reply_1='$user_reply_1',user_reply_2='$user_reply_2',user_reply_3='$user_reply_3',user_reply_4='$user_reply_4' where username='$username' and complaint_no='$complaint_no';";
                     $conn->query($complaint_update_query);
                 }
 ?>

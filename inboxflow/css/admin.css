@@ -5,6 +5,7 @@
 .dashboard-content {
     background-color: white;
     height: 100vh;
+    overflow-y: scroll;
     margin: 20px 20px 20px 20px;
     color: black;
     padding: 20px;
@@ -228,7 +229,8 @@ select option {
 }
 
 .complaint-view-form label,
-.query label,.admin-comments label {
+.query label,
+.admin-comments label {
     background-color: rgb(235, 233, 255);
     color: rgb(87, 87, 87);
     border-radius: 5px;
@@ -264,7 +266,7 @@ select option {
     font-size: 14px;
 }
 
-.admin-comments textarea{
+.admin-comments textarea {
     resize: none;
     width: 98%;
     height: 30px;
@@ -282,31 +284,5 @@ input[type="checkbox"][readonly] {
     border-radius: 3px;
     /* box-shadow: 3px 3px 6px rgb(215, 212, 255); */
 }
-.text-boxes{
-    display: flex;
-    justify-content: center;
-}
 
-.form-btns{
-    padding:20px 0px;
-    display: flex;
-    justify-content: center;
-}
-.text-boxes input[type="text"]{
-    width: 250px;
-}
-.form-container{
-    background-color: white;
-    border-radius: 20px;
-    margin: 5% 10%;
-    height: 90vh;
-}
-.form-table table{
-    width: 90%;
-    border-collapse:collapse;
-    margin: 20px 50px;
-}
-.heading h4{
-    text-align: center;
-    padding: 30px;
-}
+

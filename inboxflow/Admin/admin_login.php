@@ -60,7 +60,7 @@ require_once 'admin_functions.php';
                                             $password = sanitizing($_POST['password']);
                                             if ($get_query_output->num_rows > 0) {
                                                 $result = $get_query_output->fetch_assoc();
-                                                //hashing the password
+                                                //verifying with he hashed password
                                                 if (password_verify($password, $result['password'])) {
                                                     $emp_id = $result['emp_id'];
                                                     $username = $result['username'];

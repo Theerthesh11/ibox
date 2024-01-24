@@ -1,9 +1,8 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
-// ini_set('log_errors', 1);
+ini_set('log_errors', 1);
 require_once "../config.php";
-global $conn;
 //random function generates according to given length
 function random($length)
 {
@@ -133,6 +132,7 @@ function email_options($starred_mail, $checkbox_value, $user_details_result)
         //$starred_status = "reciever_starred_status" if user is reciever of that mail
         //$starred_status = "sender_starred_status" if user is sender of that mail
         foreach ($starred_mail as $mail_number) {
+            echo $starred_status;
             $star_query = "update mail_list set $starred_status ='{$user_details_result['username']}' where mail_no='$mail_number';";
             $star_output = $conn->query($star_query);
         }
@@ -193,11 +193,12 @@ function email_options($starred_mail, $checkbox_value, $user_details_result)
         }
     }
 }
-//This function displays the data fetched for each options
-function pagination($page, $query, $result, $page_number)
+
+//function for pagination
+function pagination($query, $order_part = "", int $results_per_page = 10)
 {
-    global $email, $conn;
-    $results_per_page = 10;
+    global $conn;
+    $result = $conn->query($query);
     $number_of_result = $result->num_rows;
     $number_of_page = ceil($number_of_result / $results_per_page);
     if (!isset($_GET['page_no'])) {
@@ -206,72 +207,79 @@ function pagination($page, $query, $result, $page_number)
         $page_no = $_GET['page_no'];
     }
     $page_first_result = ($page_no - 1) * $results_per_page;
-    $pagination_query =  "$query ORDER BY date_of_sending DESC LIMIT " . $page_first_result . ',' . $results_per_page;
+    $pagination_query = "$query $order_part LIMIT " . $page_first_result . ',' . $results_per_page;
     $pagination_output = $conn->query($pagination_query);
-    if ($pagination_output->num_rows > 0) {
-        while ($pagination_result = $pagination_output->fetch_assoc()) {
-            if ($pagination_result['sender_email'] == $email) {
-                $starred_status = $pagination_result['sender_starred_status'];
-            } elseif ($pagination_result['reciever_email'] == $email) {
-                $starred_status = $pagination_result['reciever_starred_status'];
-            } elseif ($pagination_result['cc'] == $email) {
-                $starred_status = $pagination_result['cc_starred_status'];
-            } elseif ($pagination_result['bcc'] == $email) {
-                $starred_status = $pagination_result['bcc_starred_status'];
-            }
-            if ($pagination_result['cc'] == $email && $pagination_result['cc_inbox_status'] == "unread") {
-                $color = "color:black;";
-            } elseif ($pagination_result['bcc'] == $email && $pagination_result['bcc_inbox_status'] == "unread") {
-                $color = "color:black;";
-            } elseif ($pagination_result['inbox_status'] == "read") {
-                $color = "color:grey;";
-            } elseif ($pagination_result['reciever_email'] == $email && $pagination_result['inbox_status'] == "unread") {
-                $color = "color:black;";
-            } elseif (($pagination_result['reciever_email'] == $email) && ($pagination_result['sender_email'] == $email) && $pagination_result['inbox_status'] == "unread") {
-                $color = "color:black;";
-            } elseif ($pagination_result['sender_email'] == $email) {
-                $color = "color:grey;";
-            } else {
-                $color = "color:grey;";
-            }
-?>
-            <tr class="mail-line" style="<?= $color ?>">
-                <td style="width:10%;margin-left:20px;">
-                    <input type="checkbox" name="check[]" value="<?= $pagination_result['mail_no'] ?>" class="archive" form="checkbox_form">
-                    <input type="checkbox" name="star-check[]" value="<?= $pagination_result['mail_no'] ?>" <?= $starred_status == NULL ? 'class="star"' : 'class="stared"' ?> form="checkbox_form">
-                </td>
-                <td style="width:30%;">
-                    <a href="email.php?page=Email&option=<?= $page ?>&page_no=<?= $page_number ?>&token=<?= urlencode(base64_encode($pagination_result['token_id']))  ?>&mailno=<?= $pagination_result['mail_no'] ?>" style="<?= $color ?>">
-                        <?= usermail_as_me($pagination_result['sender_email'], $pagination_result['reciever_email'], $pagination_result['sender_name'], $pagination_result['reciever_name']) ?>
-                    </a>
-                </td>
-                <td style="width:50%;">
-                    <a href="email.php?page=Email&option=<?= $page ?>&page_no=<?= $page_number ?>&token=<?= urlencode(base64_encode($pagination_result['token_id'])) ?>&mailno=<?= $pagination_result['mail_no'] ?>" style="<?= $color ?>">
-                        <?php
-                        if (!empty($pagination_result['attachment_name'])) {
-                            echo '<img src="../icons/attachment.png" alt="clip" class="attachment-logo">';
-                        }
-                        echo substr($pagination_result['subject'], 0, 25);
-                        if (strlen($pagination_result['subject']) > 25) {
-                            echo "...";
-                        }
-                        ?>
-                    </a>
-                </td>
+    $output_array = array($pagination_output, $number_of_page, $page_no);
+    return $output_array;
+}
 
-                <td style="width:10%;">
-                    <a href="email.php?page=Email&option=<?= $page ?>&page_no=<?= $page_number ?>&token=<?= urlencode(base64_encode($pagination_result['token_id'])) ?>&mailno=<?= $pagination_result['mail_no'] ?>" style="margin-right:20px;<?= $color ?>">
-                        <?= dateconvertion($pagination_result['date_of_sending']) ?>
-                    </a>
-                </td>
-            </tr>
-        <?php
+//This function displays the data fetched for each options
+function email_list($page, $query, $result, $page_number)
+{
+    global $email;
+    $pagination_output = pagination($query, "order by date_of_sending");
+    while ($pagination_result = $pagination_output[0]->fetch_assoc()) {
+        if ($pagination_result['sender_email'] == $email) {
+            $starred_status = $pagination_result['sender_starred_status'];
+        } elseif ($pagination_result['reciever_email'] == $email) {
+            $starred_status = $pagination_result['reciever_starred_status'];
+        } elseif ($pagination_result['cc'] == $email) {
+            $starred_status = $pagination_result['cc_starred_status'];
+        } elseif ($pagination_result['bcc'] == $email) {
+            $starred_status = $pagination_result['bcc_starred_status'];
         }
+        if ($pagination_result['cc'] == $email && $pagination_result['cc_inbox_status'] == "unread") {
+            $color = "color:black;";
+        } elseif ($pagination_result['bcc'] == $email && $pagination_result['bcc_inbox_status'] == "unread") {
+            $color = "color:black;";
+        } elseif ($pagination_result['inbox_status'] == "read") {
+            $color = "color:grey;";
+        } elseif ($pagination_result['reciever_email'] == $email && $pagination_result['inbox_status'] == "unread") {
+            $color = "color:black;";
+        } elseif (($pagination_result['reciever_email'] == $email) && ($pagination_result['sender_email'] == $email) && $pagination_result['inbox_status'] == "unread") {
+            $color = "color:black;";
+        } elseif ($pagination_result['sender_email'] == $email) {
+            $color = "color:grey;";
+        } else {
+            $color = "color:grey;";
+        }
+?>
+        <tr class="mail-line" style="<?= $color ?>">
+            <td style="width:10%;margin-left:20px;">
+                <input type="checkbox" name="check[]" value="<?= $pagination_result['mail_no'] ?>" class="archive" form="checkbox_form">
+                <input type="checkbox" name="star-check[]" value="<?= $pagination_result['mail_no'] ?>" <?= $starred_status == NULL ? 'class="star"' : 'class="stared"' ?> form="checkbox_form">
+            </td>
+            <td style="width:30%;">
+                <a href="email.php?page=Email&option=<?= $page ?>&page_no=<?= $page_number ?>&token=<?= urlencode(base64_encode($pagination_result['token_id']))  ?>&mailno=<?= $pagination_result['mail_no'] ?>" style="<?= $color ?>">
+                    <?= usermail_as_me($pagination_result['sender_email'], $pagination_result['reciever_email'], $pagination_result['sender_name'], $pagination_result['reciever_name']) ?>
+                </a>
+            </td>
+            <td style="width:50%;">
+                <a href="email.php?page=Email&option=<?= $page ?>&page_no=<?= $page_number ?>&token=<?= urlencode(base64_encode($pagination_result['token_id'])) ?>&mailno=<?= $pagination_result['mail_no'] ?>" style="<?= $color ?>">
+                    <?php
+                    if (!empty($pagination_result['attachment_name'])) {
+                        echo '<img src="../icons/attachment.png" alt="clip" class="attachment-logo">';
+                    }
+                    echo substr($pagination_result['subject'], 0, 25);
+                    if (strlen($pagination_result['subject']) > 25) {
+                        echo "...";
+                    }
+                    ?>
+                </a>
+            </td>
+
+            <td style="width:10%;">
+                <a href="email.php?page=Email&option=<?= $page ?>&page_no=<?= $page_number ?>&token=<?= urlencode(base64_encode($pagination_result['token_id'])) ?>&mailno=<?= $pagination_result['mail_no'] ?>" style="margin-right:20px;<?= $color ?>">
+                    <?= dateconvertion($pagination_result['date_of_sending']) ?>
+                </a>
+            </td>
+        </tr>
+        <?php
     }
     //page numbers for records when records count exceed 10
     echo '<div class="result-page-numbers"><div class="page_numbers">';
     echo '<button style="width:40px"><a href = "email.php?page=Email&option=' . $page . '&page_no=1"><<</a></button>';
-    for ($page_no = 1; $page_no <= $number_of_page; $page_no++) {
+    for ($page_no = 1; $page_no <= $pagination_output[1]; $page_no++) {
         echo '<button><a href = "email.php?page=Email&option=' . $page . '&page_no=' . $page_no . '"> ' .  $page_no . ' </a></button>';
     }
     echo '<button style="width:40px;margin-left:20px"><a href = "email.php?page=Email&option=' . $page . '&page_no=' . ($page_no - 1) . '">>></a></button>';
@@ -282,7 +290,7 @@ function pagination($page, $query, $result, $page_number)
     echo '</div>';
 }
 
-function search_pagination($query, $result, $page_number, $search_content)
+function search_list($query, $result, $page_number, $search_content)
 {
     global $email, $conn;
     // require "config.php";

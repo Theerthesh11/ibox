@@ -2,7 +2,7 @@
 session_start();
 //error reporting
 error_reporting(E_ALL);
-ini_set('display_errors', 0);
+ini_set('display_errors', 1);
 //including required files
 require_once "../admin/admin_functions.php";
 require_once "../config.php";
@@ -381,14 +381,14 @@ if ($admin_details['role'] == "superadmin") {
                             //1 means access is given 0 means access restricted
                             if ($admin_details['login_activity'] == 1) {
                             ?>
-                                <form action="admin_dashboard.php?page=Login%20Activity&page_no=<?= isset($_GET['page_no']) ? $_GET['page_no'] : 1 ?>" method="get">
+                                <form action="admin_dashboard.php" method="get">
                                     <div class="access-options">
                                         <div class="search">
                                             <Label for="from_date">FROM</Label>
                                             <input type="date" id="from_date" name="from_date">
                                             <Label for="to_date">TO</Label>
                                             <input type="date" id="to_date" name="to_date" max="<?= date('Y-m-d') ?>">
-                                            <input type="submit" name="activity-search-btn" value="Search">
+                                            <input type="submit" name="search" value="Search">
                                         </div>
                                         <!-- <div> -->
                                         <!--retrives login info for past 3 days-->
@@ -434,7 +434,7 @@ if ($admin_details['role'] == "superadmin") {
                                         //     // $custom_record_output = $conn->query($custom_record_query);
                                         //     login_activity($page, $custom_record_query);
                                         // } //by default displays total login info
-                                        if (isset($_GET['activity-search-btn'])) {
+                                        if (isset($_GET['search'])) {
                                             if (!empty($_GET['from_date']) && !empty($_GET['to_date'])) {
                                                 $from_date = !empty($_GET['from_date']) ? $_GET['from_date'] : "";
                                                 $to_date = !empty($_GET['to_date']) ? $_GET['to_date'] : "curdate()";
@@ -476,15 +476,15 @@ if ($admin_details['role'] == "superadmin") {
                                     //1 means access is given 0 means access restricted
                                     // if ($admin_details['user_log'] == 1) {
                                     ?>
-                                    <form action="admin_dashboard.php?page=User log&page_no=<?= isset($_GET['page_no']) ? $_GET['page_no'] : 1 ?>" method="post">
+                                    <form action="admin_dashboard.php" method="get">
                                         <div class="access-options">
                                             <div class="search">
-                                                <input type="search" name="username_search" value="" placeholder="username@123">
+                                                <input type="search" name="username" value="<?= isset($_GET['username']) ? $_GET['username'] : ""; ?>" placeholder="username@123">
                                                 <Label for="from_date">FROM</Label>
-                                                <input type="date" id="from_date" name="from_date">
+                                                <input type="date" id="from_date" name="from_date" max="<?= date('Y-m-d') ?>">
                                                 <Label for="to_date">TO</Label>
                                                 <input type="date" id="to_date" name="to_date" max="<?= date('Y-m-d') ?>">
-                                                <input type="submit" name="user-log-search" value="Search">
+                                                <input type="submit" name="user_log" value="Search">
                                             </div>
                                         </div>
                                     </form>
@@ -497,16 +497,34 @@ if ($admin_details['role'] == "superadmin") {
                                                 <th style="width: 25%;">LOGIN TIME</th>
                                                 <th style="width: 25%;">LOGOUT TIME</th>
                                             </tr>
-                                        <?php
-                                        // }
-                                        $user_log_query = "select * from user_login_log order by login_time desc";
-                                        user_login_activity($page, $user_log_query);
-                                        // echo "</table></div>";
-                                        break;
-                                        //admin profile code
-                                    case 'Admin':
-                                        $_SESSION['current_page'] = "Admin";
-                                        ?>
+                                            <?php
+                                            if (isset($_GET['user_log'])) {
+                                                if (!empty($_GET['from_date']) && !empty($_GET['to_date']) || !empty($_GET['username'])) {
+                                                    $search_username = !empty($_GET['username']) ? $_GET['username'] : "";
+                                                    $from_date = !empty($_GET['from_date']) ? $_GET['from_date'] : "";
+                                                    $to_date = !empty($_GET['to_date']) ? $_GET['to_date'] : "curdate()";
+                                                    if ($from_date > $to_date && $to_date == "curdate()") {
+                                                        $from_date = "curdate()";
+                                                    } elseif ($from_date > $to_date) {
+                                                        $from_date = $to_date;
+                                                    }
+                                                    $user_log_query = "select * from user_login_log where login_time >= '$from_date' AND login_time < '$to_date' + INTERVAL 1 DAY and username like '%$search_username%' order by login_time desc";
+                                                    user_login_activity($page, $user_log_query);
+                                                } else {
+                                                    $user_log_query = "select * from user_login_log order by login_time desc";
+                                                    user_login_activity($page, $user_log_query);
+                                                }
+                                            } else {
+                                                $user_log_query = "select * from user_login_log order by login_time desc";
+                                                user_login_activity($page, $user_log_query);
+                                            }
+
+                                            echo "</table></div>";
+                                            break;
+                                            //admin profile code
+                                        case 'Admin':
+                                            $_SESSION['current_page'] = "Admin";
+                                            ?>
                                             <div class="profile-container">
                                                 <div class="profile_picture">
                                                     <div>
@@ -581,21 +599,21 @@ if ($admin_details['role'] == "superadmin") {
                                         ?>
 
                                         <?php
-                                        //saves the changes made in profile
-                                        if (isset($_POST['save'])) {
-                                            $name = !empty($_POST['name']) ? sanitizing($_POST['name']) : "";
-                                            $dob = !empty($_POST['dob']) ? sanitizing($_POST['dob']) : "";
-                                            $dob = dateconvertion($dob, "y-m-d");
-                                            $phone_number = !empty($_POST['cell_number']) ? sanitizing($_POST['cell_number']) : "";
-                                            if (!empty($_POST)) {
-                                                $update_details = "update admin_details set name='$name', date_of_birth='$dob', phone_no='$phone_number', updated_on = current_timestamp where email='{$result['email']}';";
-                                                $conn->query($update_details);
+                                            //saves the changes made in profile
+                                            if (isset($_POST['save'])) {
+                                                $name = !empty($_POST['name']) ? sanitizing($_POST['name']) : "";
+                                                $dob = !empty($_POST['dob']) ? sanitizing($_POST['dob']) : "";
+                                                $dob = dateconvertion($dob, "y-m-d");
+                                                $phone_number = !empty($_POST['cell_number']) ? sanitizing($_POST['cell_number']) : "";
+                                                if (!empty($_POST)) {
+                                                    $update_details = "update admin_details set name='$name', date_of_birth='$dob', phone_no='$phone_number', updated_on = current_timestamp where email='{$result['email']}';";
+                                                    $conn->query($update_details);
+                                                }
                                             }
-                                        }
-                                        break;
-                                        //access page code
-                                    case 'Access':
-                                        $_SESSION['current_page'] = "Access";
+                                            break;
+                                            //access page code
+                                        case 'Access':
+                                            $_SESSION['current_page'] = "Access";
                                         ?>
                                         <div class="access-container">
                                             <div class="access-content">
@@ -666,10 +684,10 @@ if ($admin_details['role'] == "superadmin") {
                                                     </div>
                                             </div>
                                         <?php
-                                        break;
-                                    case 'Queries':
-                                        $_SESSION['current_page'] = "Queries";
-                                        $option = isset($_GET['option']) ? sanitizing($_GET['option']) : "";
+                                            break;
+                                        case 'Queries':
+                                            $_SESSION['current_page'] = "Queries";
+                                            $option = isset($_GET['option']) ? sanitizing($_GET['option']) : "";
                                         ?>
                                             <div class="dashboard-container">
                                                 <div class="dashboard-content">
@@ -715,6 +733,8 @@ if ($admin_details['role'] == "superadmin") {
                                                                 $_SESSION['current_option'] = "Unsolved";
                                                                 $unsolved_issue_query = "select * from user_queries where assigned_to='$username' and (status='Pending' or status='Processing') ";
                                                                 admin_review_complaints($unsolved_issue_query);
+                                                                break;
+                                                            default:
                                                                 break;
                                                         }
                                                         if ($admin_details['role'] == "superadmin" && !isset($_GET['complaint_no'])) {
