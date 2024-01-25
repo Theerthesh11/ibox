@@ -291,8 +291,8 @@ $page_no = empty($_GET['page_no']) ? '1' : $_GET['page_no'];
                                 <div class="mail-display">
                                     <!--form that shows the mail sent or recieved briefly with readonly mode-->
                                     <div class="mail-display-options">
-                                        <div>
-                                            <a href="email.php?page=Email&option=<?= $option ?>&page_no=<?= $page_no ?>">Back</a>
+                                        <div class="back-btn">
+                                            <a href="<?php echo $_SERVER['HTTP_REFERER'] ?>">Back</a>
                                         </div>
                                         <div>
                                             <form action="<?= $action_path ?>" method="post" enctype="multipart/form-data">
@@ -370,10 +370,10 @@ $page_no = empty($_GET['page_no']) ? '1' : $_GET['page_no'];
                         case 'Chat':
                             //chat page
                     ?>
-                    <div class="chat-container">
-                        <div class="chat-content">
+                    <div class="dashboard-container">
+                        <div class="dashboard-content">
                             <?php
-                            echo "<h4>Chat will be available soon</h4>";
+                            alert_message("Chat will be available soon</h4>");
                             ?>
                         </div>
                     </div>
@@ -440,7 +440,7 @@ $page_no = empty($_GET['page_no']) ? '1' : $_GET['page_no'];
                 ?>
                 <div class="dashboard-container">
                     <div class="dashboard-content">
-                        <h4>calender will be available soon</h4>
+                        <?=alert_message("Calender will be available soon");?>
                     </div>
                 </div>
         <?php

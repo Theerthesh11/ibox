@@ -3,6 +3,10 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 require_once "../config.php";
+function alert_message($message)
+{
+    echo '<div class="alert-message"><p>' . $message . '</p></div>';
+}
 //random function generates according to given length
 function random($length)
 {

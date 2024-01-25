@@ -81,20 +81,20 @@ if ($admin_details['role'] == "superadmin") {
                 <!--pages in vertical navigation bar -->
                 <br><br>
                 <!--page value sent to url when clicked-->
-                <li><a href="?page=I-Box Dashboard"><button <?= (isset($_GET['page']) && $_GET['page'] === 'I-Box Dashboard') || ($_SESSION['current_page'] == 'I-Box Dashboard' && !isset($_GET['page'])) ? 'class="active"' : '' ?>>I-Box Dashboard</button></a></li>
-                <li><a href="?page=Admin List"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Admin List') || ($_SESSION['current_page'] == 'Admin List' && !isset($_GET['page'])) ? 'class="active"' : '' ?>>Admin list</button></a></li>
-                <li><a href="?page=User List"><button <?= (isset($_GET['page']) && $_GET['page'] === 'User List') || ($_SESSION['current_page'] == 'User List' && !isset($_GET['page'])) ? 'class="active"' : '' ?>>User list</button></a></li>
-                <li><a href="?page=Login Activity"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Login Activity') || ($_SESSION['current_page'] == 'Login Activity' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Login activity</button></a></li>
-                <li><a href="?page=User log"><button <?= (isset($_GET['page']) && $_GET['page'] === 'User log') || ($_SESSION['current_page'] == 'User log' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>User log</button></a></li>
-                <li><a href="?page=Admin"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Admin') || ($_SESSION['current_page'] == 'Admin' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Admin</button></a></li>
-                <li><a href="?page=Access"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Access') || ($_SESSION['current_page'] == 'Access' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Access</button></a></li>
-                <li><a href="?<?= $path ?>"><button <?= (isset($_GET['page']) && $_GET['page'] === 'Queries') || ($_SESSION['current_page'] == 'Queries' && !isset($_GET['page'])) ? ' class="active"' : '' ?>>Queries</button></a>
+                <li><a href="?page=I-Box Dashboard"><button <?= button_css("I-Box Dashboard") ?>>I-Box Dashboard</button></a></li>
+                <li><a href="?page=Admin List"><button <?= button_css("Admin List") ?>>Admin list</button></a></li>
+                <li><a href="?page=User List"><button <?= button_css("User List") ?>>User list</button></a></li>
+                <li><a href="?page=Login Activity"><button <?= button_css("Login Activity") ?>>Login activity</button></a></li>
+                <li><a href="?page=User log"><button <?= button_css("User Log") ?>>User log</button></a></li>
+                <li><a href="?page=Admin"><button <?= button_css("Admin") ?>>Admin</button></a></li>
+                <li><a href="?page=Access"><button <?= button_css("Access") ?>>Access</button></a></li>
+                <li><a href="?<?= $path ?>"><button <?= button_css("Queries") ?>>Queries</button></a>
                     <?php
                     if ($page == "Queries" && $admin_details['role'] == "admin") {
                     ?>
                         <ul>
                             <li><a href="?page=Queries&option=Solved"><button <?= (isset($_GET['option']) && $_GET['option'] === 'Solved') || ($_SESSION['current_option'] == 'Solved' && !isset($_GET['option'])) ? ' class="sub-active"' : '' ?>>Solved</button></a></li>
-                            <li><a href="?page=Queries&option=Unsolved"><button <?= (isset($_GET['option']) && $_GET['option'] === 'Unsolved') || ($_SESSION['current_option'] == 'Unsolved' && !isset($_GET['option'])) ? ' class="sub-active"' : '' ?>>Unsolved <?= unsolved_count() ?></button></a></li>
+                            <li><a href="?page=Queries&option=Unsolved"><button <?= (isset($_GET['option']) && $_GET['option'] === 'Unsolved') || ($_SESSION['current_option'] == 'Unsolved' && !isset($_GET['option'])) ? ' class="sub-active"' : '' ?>>Unsolved <?= "(" . unsolved_count() . ")" ?></button></a></li>
                         </ul>
                     <?php
                     }
@@ -110,7 +110,7 @@ if ($admin_details['role'] == "superadmin") {
                 $_SESSION['current_page'] = "I-Box Dashboard"
         ?>
                 <div class="dashboard-container">
-                    <div class="dashboard-content">
+                    <div class="dashboard">
                         <?php
                         //checks whether the admin has access to this page
                         //1 means access is given 0 means access restricted
@@ -244,12 +244,14 @@ if ($admin_details['role'] == "superadmin") {
                                     $search_query = "select * from admin_details where username like '%$search_content%' or email like '%$search_content%' or name like '%$search_content%'";
                                     $search_output = $conn->query($search_query);
                                     if ($search_output->num_rows > 0) {
-                                        admin_details($page, $search_query);
+                                        admin_details($search_query);
                                     } else {
-                                        echo "No results found<br><br>";
+                                        echo "</table>";
+                                        alert_message("No results found");
+                                        echo "<br><br>";
                                     }
                                 } elseif (!isset($_POST['search-btn']) || empty($_GET['admin_search'])) {
-                                    admin_details($page);
+                                    admin_details();
                                 }
                                 if (isset($_POST['enable_admin'])) {
                                     $enable_admin = !empty($_POST['admin_id']) ? $_POST['admin_id'] : array();
@@ -509,14 +511,14 @@ if ($admin_details['role'] == "superadmin") {
                                                         $from_date = $to_date;
                                                     }
                                                     $user_log_query = "select * from user_login_log where login_time >= '$from_date' AND login_time < '$to_date' + INTERVAL 1 DAY and username like '%$search_username%' order by login_time desc";
-                                                    user_login_activity($page, $user_log_query);
+                                                    user_login_activity($user_log_query);
                                                 } else {
                                                     $user_log_query = "select * from user_login_log order by login_time desc";
-                                                    user_login_activity($page, $user_log_query);
+                                                    user_login_activity($user_log_query);
                                                 }
                                             } else {
                                                 $user_log_query = "select * from user_login_log order by login_time desc";
-                                                user_login_activity($page, $user_log_query);
+                                                user_login_activity($user_log_query);
                                             }
 
                                             echo "</table></div>";
@@ -615,8 +617,8 @@ if ($admin_details['role'] == "superadmin") {
                                         case 'Access':
                                             $_SESSION['current_page'] = "Access";
                                         ?>
-                                        <div class="access-container">
-                                            <div class="access-content">
+                                        <div class="dashboard-container">
+                                            <div class="dashboard-content">
                                                 <?php
                                                 //checks if admin has access to this page
                                                 //1 means access is given 0 means access restricted
@@ -687,14 +689,13 @@ if ($admin_details['role'] == "superadmin") {
                                             break;
                                         case 'Queries':
                                             $_SESSION['current_page'] = "Queries";
-                                            $option = isset($_GET['option']) ? sanitizing($_GET['option']) : "";
+                                            $option = isset($_GET['option']) ? sanitizing($_GET['option']) : "Solved";
                                         ?>
                                             <div class="dashboard-container">
                                                 <div class="dashboard-content">
-                                                    <div class="access-options">
-                                                        <?php
-                                                        if (!isset($_GET['complaint_no'])) {
-                                                        ?>
+                                                    <?php
+                                                    if (!isset($_GET['complaint_no']) && $admin_details['role'] == "admin") {
+                                                    ?><div class="access-options">
                                                             <div class="search">
                                                                 <form action="admin_dashboard.php" method="get">
                                                                     <input type="search" name="query_no" placeholder="1" value="<?= isset($_GET['query_no']) ? $_GET['query_no'] : "" ?>">
@@ -709,109 +710,119 @@ if ($admin_details['role'] == "superadmin") {
                                                                         <input type="submit" name="reviewed" value="Reviewed">
                                                                     </form>
                                                                 </div>
-                                                            <?php
+                                                        </div>
+                                                        <?php
                                                             }
                                                         }
                                                         switch ($option) {
 
                                                             case 'Solved':
-                                                            ?>
-                                                    </div>
-                                                    <div class="user_table">
-                                                        <table class="user_list">
-                                                        <?php
-                                                                $_SESSION['current_option'] = "Solved";
-                                                                $solved_issue_query = "select * from user_queries where assigned_to='$username' and status='Reviewed' ";
-                                                                admin_review_complaints($solved_issue_query);
+                                                                if ($admin_details['role'] != "superadmin") {
+                                                                    echo "</div>";
+                                                        ?>
+                                                            <div class="user_table">
+                                                                <table class="user_list">
+                                                                <?php
+                                                                    $_SESSION['current_option'] = "Solved";
+                                                                    $solved_issue_query = "select * from user_queries where assigned_to='$username' and status='Reviewed' ";
+                                                                    admin_review_complaints($solved_issue_query);
+                                                                }
                                                                 break;
                                                             case 'Unsolved':
-                                                        ?>
-                                                    </div>
-                                                    <div class="user_table">
-                                                        <table class="user_list">
-                                                        <?php
+                                                                ?>
+                                                            </div>
+                                                            <div class="user_table">
+                                                                <table class="user_list">
+                                                                <?php
                                                                 $_SESSION['current_option'] = "Unsolved";
                                                                 $unsolved_issue_query = "select * from user_queries where assigned_to='$username' and (status='Pending' or status='Processing') ";
                                                                 admin_review_complaints($unsolved_issue_query);
                                                                 break;
-                                                            default:
+                                                        }
+
+                                                        if ($admin_details['role'] == "superadmin" && !isset($_GET['complaint_no'])) {
+                                                                ?>
+                                                                <div class="access-options">
+                                                                    <div class="search">
+                                                                        <form action="admin_dashboard.php" method="get">
+                                                                            <input type="search" name="query_no" placeholder="1" value="<?= isset($_GET['query_no']) ? $_GET['query_no'] : "" ?>">
+                                                                            <input type="submit" name="query_search_btn" value="Search">
+                                                                        </form>
+                                                                    </div>
+                                                                    <div>
+                                                                        <form action="admin_dashboard.php?page=Queries&page_no=<?= $page_no ?>" method="post" id="query_status">
+                                                                            <label for="admins">Assign To</label>
+                                                                            <select name="admins" id="admins">
+                                                                                <option value="none" selected disabled hidden>ADMINS</option>
+                                                                                <?php
+                                                                                $admin_fetch_query = "select username from admin_details where role='admin';";
+                                                                                $admin_output = $conn->query($admin_fetch_query);
+                                                                                if ($admin_output->num_rows > 0) {
+                                                                                    while ($admin_result = $admin_output->fetch_assoc()) {
+                                                                                        echo '<option value="' . $admin_result['username'] . '">' . $admin_result['username'] . '</option>';
+                                                                                    }
+                                                                                }
+                                                                                ?>
+                                                                            </select>
+                                                                            <input type="submit" name="assign" value="Assign">
+                                                                            <input type="submit" name="reviewed" value="Reviewed">
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="user_table">
+                                                                    <table class="user_list">
+                                                                    <?php
+                                                                    user_query_search();
+                                                                    echo '</table></div>';
+                                                                } elseif ($admin_details['role'] == "superadmin" && isset($_GET['complaint_no'])) {
+                                                                    $complaint_no = isset($_GET['complaint_no']) ? $_GET['complaint_no'] : "";
+                                                                    ?>
+                                                                        <div class="access-options">
+                                                                            <div class="back-btn">
+                                                                                <button><a href="<?php echo $_SERVER['HTTP_REFERER'] ?>">Back</a></button>
+                                                                            </div>
+                                                                            <div>
+                                                                                <form action="admin_dashboard.php?page=Queries&page_no=<?= $page_no ?>&complaint_no=<?= $complaint_no ?>" method="post" id="query_status">
+                                                                                    <label for="admins">Assign To</label>
+                                                                                    <select name="admins" id="admins">
+                                                                                        <option value="NULL" selected disabled hidden>ADMINS</option>
+                                                                                        <?php
+                                                                                        $admin_fetch_query = "select username from admin_details where role='admin';";
+                                                                                        $admin_output = $conn->query($admin_fetch_query);
+                                                                                        if ($admin_output->num_rows > 0) {
+                                                                                            while ($admin_result = $admin_output->fetch_assoc()) {
+                                                                                                echo '<option value="' . $admin_result['username'] . '">' . $admin_result['username'] . '</option>';
+                                                                                            }
+                                                                                        }
+                                                                                        ?>
+                                                                                    </select>
+                                                                                    <input type="submit" name="assign" value="Assign">
+                                                                                    <input type="submit" name="reviewed" value="Reviewed">
+                                                                                </form>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="user_table">
+                                                                            <table class="user_list">
+                                                                            <?php
+                                                                            user_query_search();
+                                                                        }
+                                                                            ?>
+                                                                        </div>
+                                                                <?php
+                                                                $checkbox_value = !empty($_POST['query_status']) ? $_POST['query_status'] : array();
+                                                                if (isset($_POST['assign']) && !empty($_POST['admins'])) {
+                                                                    $assign_to = $_POST['admins'];
+                                                                    foreach ($checkbox_value as $id) {
+                                                                        $assign_query = "update user_queries set assigned_by='{$admin_details['username']}',assigned_to='$assign_to',assigned_on=current_timestamp where complaint_no='$id' ;";
+                                                                        $conn->query($assign_query);
+                                                                    }
+                                                                }
                                                                 break;
                                                         }
-                                                        if ($admin_details['role'] == "superadmin" && !isset($_GET['complaint_no'])) {
-
-                                                        ?>
-                                                        <div></div>
-                                                        <div>
-                                                            <form action="admin_dashboard.php?page=Queries&page_no=<?= $page_no ?>" method="post" id="query_status">
-                                                                <label for="admins">Assign To</label>
-                                                                <select name="admins" id="admins">
-                                                                    <option value="none" selected disabled hidden>ADMINS</option>
-                                                                    <?php
-                                                                    $admin_fetch_query = "select username from admin_details where role='admin';";
-                                                                    $admin_output = $conn->query($admin_fetch_query);
-                                                                    if ($admin_output->num_rows > 0) {
-                                                                        while ($admin_result = $admin_output->fetch_assoc()) {
-                                                                            echo '<option value="' . $admin_result['username'] . '">' . $admin_result['username'] . '</option>';
-                                                                        }
-                                                                    }
-                                                                    ?>
-                                                                </select>
-                                                                <input type="submit" name="assign" value="ASSIGN">
-                                                                <input type="submit" name="reviewed" value="Reviewed">
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                    <div class="user_table">
-                                                        <table class="user_list">
-                                                        <?php
-                                                            user_query_search();
-                                                            echo '</table></div>';
-                                                        } elseif ($admin_details['role'] == "superadmin" && isset($_GET['complaint_no'])) {
-                                                            $complaint_no = isset($_GET['complaint_no']) ? $_GET['complaint_no'] : "";
-                                                        ?>
-                                                            <div></div>
-                                                            <div>
-                                                                <form action="admin_dashboard.php?page=Queries&page_no=<?= $page_no ?>&complaint_no=<?= $complaint_no ?>" method="post" id="query_status">
-                                                                    <label for="admins">Assign To</label>
-                                                                    <select name="admins" id="admins">
-                                                                        <option value="NULL" selected disabled hidden>ADMINS</option>
-                                                                        <?php
-                                                                        $admin_fetch_query = "select username from admin_details where role='admin';";
-                                                                        $admin_output = $conn->query($admin_fetch_query);
-                                                                        if ($admin_output->num_rows > 0) {
-                                                                            while ($admin_result = $admin_output->fetch_assoc()) {
-                                                                                echo '<option value="' . $admin_result['username'] . '">' . $admin_result['username'] . '</option>';
-                                                                            }
-                                                                        }
-                                                                        ?>
-                                                                    </select>
-                                                                    <input type="submit" name="assign" value="ASSIGN">
-                                                                    <input type="submit" name="reviewed" value="Reviewed">
-                                                                </form>
+                                                                ?>
+                                                                </div>
                                                             </div>
-                                                    </div>
-                                                    <div class="user_table">
-                                                        <table class="user_list">
-                                                        <?php
-                                                            user_query_search();
-                                                        }
-                                                        ?>
-                                                    </div>
-                                            <?php
-                                            $checkbox_value = !empty($_POST['query_status']) ? $_POST['query_status'] : array();
-                                            if (isset($_POST['assign']) && !empty($_POST['admins'])) {
-                                                $assign_to = $_POST['admins'];
-                                                foreach ($checkbox_value as $id) {
-                                                    $assign_query = "update user_queries set assigned_by='{$admin_details['username']}',assigned_to='$assign_to',assigned_on=current_timestamp where complaint_no='$id' ;";
-                                                    $conn->query($assign_query);
-                                                }
-                                            }
-                                            break;
-                                    }
-                                            ?>
                                                 </div>
-                                            </div>
-                                        </div>
 </body>
 
 </html>

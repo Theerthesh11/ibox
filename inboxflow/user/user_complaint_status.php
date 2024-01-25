@@ -61,7 +61,7 @@ $ip_address = getIPAddress();
                                         </tr>
                                         <tr>
                                             <td><textarea name="user_complaint" readonly><?= $complaint['user_complaint'] ?></textarea></td>
-                                            <td><textarea name="support_reply" readonly><?= $complaint['support_reply'] ?></textarea></td>
+                                            <td><textarea name="support_reply" readonly><?= support_reply($username, $complaint['support_reply'] , $complaint['assigned_to'])?></textarea></td>
                                         </tr>
                                         <?php
                                         if (!empty($complaint['support_reply'])) {
@@ -72,7 +72,7 @@ $ip_address = getIPAddress();
                                             } ?>
                                             <tr>
                                                 <td><textarea name="user_reply_1" <?= $readonly ?>><?= $complaint['user_reply_1'] ?></textarea></td>
-                                                <td><textarea name="support_reply_1" readonly><?= $complaint['support_reply_1'] ?></textarea></td>
+                                                <td><textarea name="support_reply_1" readonly><?=support_reply($username, $complaint['support_reply_1'] , $complaint['assigned_to'])?></textarea></td>
                                             </tr>
                                         <?php
                                         }
@@ -84,7 +84,7 @@ $ip_address = getIPAddress();
                                             } ?>
                                             <tr>
                                                 <td><textarea name="user_reply_2" <?= $readonly ?>><?= $complaint['user_reply_2'] ?></textarea></td>
-                                                <td><textarea name="support_reply_2" readonly><?= $complaint['support_reply_2'] ?></textarea></td>
+                                                <td><textarea name="support_reply_2" readonly><?= support_reply($username, $complaint['support_reply_2'] , $complaint['assigned_to']) ?></textarea></td>
                                             </tr>
                                         <?php
                                         }
@@ -96,7 +96,7 @@ $ip_address = getIPAddress();
                                             } ?>
                                             <tr>
                                                 <td><textarea name="user_reply_3" <?= $readonly ?>><?= $complaint['user_reply_3'] ?></textarea></td>
-                                                <td><textarea name="support_reply_3" readonly><?= $complaint['support_reply_3'] ?></textarea></td>
+                                                <td><textarea name="support_reply_3" readonly><?= support_reply($username, $complaint['support_reply_3'] , $complaint['assigned_to']) ?></textarea></td>
                                             </tr>
                                         <?php
                                         }
@@ -108,7 +108,7 @@ $ip_address = getIPAddress();
                                             } ?>
                                             <tr>
                                                 <td><textarea name="user_reply_4" <?= $readonly ?>><?= $complaint['user_reply_4'] ?></textarea></td>
-                                                <td><textarea name="support_reply_4" readonly><?= $complaint['support_reply_4'] ?></textarea></td>
+                                                <td><textarea name="support_reply_4" readonly><?= support_reply($username, $complaint['support_reply_4'] , $complaint['assigned_to']) ?></textarea></td>
                                             </tr>
                                         <?php } ?>
                                     </table>
