@@ -27,10 +27,10 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : header("user_
         </div>
         <div class="fraction_two">
             <div class="fraction_two_container">
-                <h2 style="text-align: center;">PASSWORD RESET</h2>
+                <h2 style="text-align: center;">TOKEN VERIFY</h2>
                 <div class="form">
                     <!-- <div class="elfsight-app-4b41d601-2ed8-4d61-bc2d-d0a89568f569" data-elfsight-app-lazy></div> -->
-                    <form action="../user/token_verify.php" method="post">
+                    <form action="../admin/admin_token_verify.php" method="post">
                         <label for="token">Token</label><br>
                         <input type="password" name="token" id="token"><br><br>
                         <div class="form-buttons" style="text-align: center;">
@@ -41,28 +41,29 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : header("user_
                     </form>
                     <?php
                     if (isset($_POST['verify'])) {
-                        $get_query = "select * from user_details where username='{$username}';";
+                        $get_query = "select * from admin_details where username='{$username}';";
                         $get_query_output = $conn->query($get_query);
                         if ($get_query_output->num_rows > 0) {
                             $result = $get_query_output->fetch_assoc();
                             if (!empty($_POST['token']) && preg_match("/^[a-fA-F0-9]*$/", $_POST['token'])) {
                                 $token_id = $_POST['token'];
                                 if ($token_id === bin2hex($result['token_id'])) {
-                                    $forgot_attempt_update = "update user_details set forgot_pass_attempt='1',token_attempt='0' where username='$username';";
+                                    $otp = random(6);
+                                    $forgot_attempt_update = "update admin_details set forgot_pass_attempt='1',token_attempt='0',otp='$otp' where username='$username';";
                                     $conn->query($forgot_attempt_update);
-                                    header("location:password_change.php");
+                                    header("location:admin_password_change.php");
                                 } else {
-                                    $disable_user_query = "update user_details set password_attempt='0',forgot_pass_attempt='0',token_attempt='0',user_status='disable' where username='$username';";
+                                    $disable_user_query = "update admin_details set password_attempt='0',forgot_pass_attempt='0',token_attempt='0',admin_status='disable',otp=NULL where username='$username';";
                                     $conn->query($disable_user_query);
-                                    header("location:user_login.php");
+                                    header("location:admin_login.php");
                                 }
                             } else {
-                                $disable_user_query = "update user_details set password_attempt='0',forgot_pass_attempt='0',token_attempt='0',user_status='disable' where username='$username';";
+                                $disable_user_query = "update admin_details set password_attempt='0',forgot_pass_attempt='0',token_attempt='0',admin_status='disable' where username='$username';";
                                 $conn->query($disable_user_query);
-                                header("location:user_login.php");
+                                header("location:admin_login.php");
                             }
                         } else {
-                            header("location:user_login.php");
+                            header("location:admin_login.php");
                         }
                     }
 

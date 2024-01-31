@@ -74,7 +74,7 @@ $ip_address = getIPAddress();
                                             $last_login = "update user_details set login_id='{$_SESSION['login_id']}',last_login=current_timestamp where token_id='{$_SESSION['token_id']}';";
                                             $last_login_update = $conn->query($last_login);
                                             $_SESSION['last_activity'] = time();
-                                            $user_login_query = "insert into user_login_log (login_id,username,login_status,ip_address,login_time,logout_time) values('{$_SESSION['login_id']}','$username','success','$ip_address',current_timestamp,NULL);";
+                                            $admin_login_query = "insert into user_login_log (login_id,username,login_status,ip_address,login_time,logout_time) values('{$_SESSION['login_id']}','$username','success','$ip_address',current_timestamp,NULL);";
                                             $conn->query($user_login_query);
                                             header("location:email.php?page=Email&option=Inbox");
                                         } else {

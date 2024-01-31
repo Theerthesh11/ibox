@@ -60,28 +60,49 @@ require_once 'admin_functions.php';
                                             $password = sanitizing($_POST['password']);
                                             if ($get_query_output->num_rows > 0) {
                                                 $result = $get_query_output->fetch_assoc();
-                                                //verifying with he hashed password
-                                                if (password_verify($password, $result['password'])) {
+                                                if ($result['admin_status'] == "enable") {
                                                     $emp_id = $result['emp_id'];
                                                     $username = $result['username'];
+                                                    $_SESSION['username'] = $username;
                                                     $name = $result['name'];
                                                     $role = $result['role'];
-                                                    $_SESSION['admin_token_id'] = $result['token_id'];
-                                                    $_SESSION['current_page'] = "I-Box Dashboard";
-                                                    $_SESSION['current_option'] ="Solved";
                                                     $activity = "";
                                                     //setting the default timezone
                                                     date_default_timezone_set('Asia/Kolkata');
                                                     $login_time = date('y-m-d H:i:s');
-                                                    //inserting login info
-                                                    $activity_insert_query = "insert into login_activity (emp_id,username,name,role, activity, login_time) values('$emp_id','$username','$name','$role','$activity','$login_time')";
-                                                    $activity_insert_output = $conn->query($activity_insert_query);
-                                                    $login_update_query = "update admin_details set last_login=current_timestamp;";
-                                                    $login_update_output = $conn->query($login_update_query);
-                                                    $_SESSION['login_time'] = $login_time;
-                                                    header("location:admin_dashboard.php?page=I-Box Dashboard");
+                                                    //verifying with he hashed password
+                                                    if (password_verify($password, $result['password'])) {
+                                                        $_SESSION['admin_token_id'] = $result['token_id'];
+                                                        $_SESSION['current_page'] = "I-Box Dashboard";
+                                                        $_SESSION['current_option'] = "Solved";
+                                                        $login_status = "success";
+                                                        //inserting login info
+                                                        $activity_insert_query = "insert into login_activity (emp_id, username, name, role, login_status, activity, login_time) values('$emp_id','$username','$name','$role','$login_status','$activity','$login_time')";
+                                                        $activity_insert_output = $conn->query($activity_insert_query);
+                                                        $login_update_query = "update admin_details set last_login=current_timestamp;";
+                                                        $login_update_output = $conn->query($login_update_query);
+                                                        $_SESSION['login_time'] = $login_time;
+                                                        $user_login_query = "insert into user_login_log (login_id,username,login_status,ip_address,login_time,logout_time) values('{$_SESSION['login_id']}','$username','success','$ip_address',current_timestamp,NULL);";
+                                                        $conn->query($user_login_query);
+                                                        header("location:admin_dashboard.php?page=I-Box Dashboard");
+                                                    } else {
+                                                        $login_status = "Wrong password";
+                                                        $activity_insert_query = "insert into login_activity (emp_id, username, name, role, login_status, activity, login_time) values('$emp_id','$username','$name','$role','$login_status','$activity','$login_time')";
+                                                        $activity_insert_output = $conn->query($activity_insert_query);
+                                                        $attempt = --$result['password_attempt'];
+                                                        if ($attempt > 0 && $result['admin_status'] == 'enable') {
+                                                            $attempt_update = "update admin_details set password_attempt='$attempt' where username='$username';";
+                                                            $conn->query($attempt_update);
+                                                            echo "<h6 style=\"text-align: center; color:red;\">Incorrect password and " . $attempt . " attempt remaining</h6>";
+                                                        } else {
+                                                            $otp = random(6);
+                                                            $otp_update_query = "update admin_details set password_attempt=0, otp='$otp' where username='$username';";
+                                                            $conn->query($otp_update_query);
+                                                            header("location:admin_password_change.php");
+                                                        }
+                                                    }
                                                 } else {
-                                                    echo "<h6 style=\"text-align: center; color:red;\">Incorrect password</h6>";
+                                                    echo "<h6 style=\"text-align: center; color:red;\">Account freezed</h6>";
                                                 }
                                             } else {
                                                 echo "<h6 style=\"text-align: center; color:red;\">User not found</h6>";
@@ -90,7 +111,7 @@ require_once 'admin_functions.php';
                                             echo "<h6 style=\"text-align: center; color:red;\">Password not valid</h6>";
                                         }
                                     } else {
-                                        echo "<h6 style=\"text-align: center; color:red;\">Incorrect password</h6>";
+                                        echo "<h6 style=\"text-align: center; color:red;\">Enter the password</h6>";
                                     }
                                 } else {
                                     echo "username must be a alphanumeric";

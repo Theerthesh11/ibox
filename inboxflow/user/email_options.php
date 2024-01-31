@@ -9,6 +9,7 @@ $checkbox_value = !empty($_POST['check']) ? $_POST['check'] : array();
 //fetching data from db for options in email page
 if (isset($_GET['option']) && !isset($_POST['reply'])) {
     //decides who starred the mail
+    $starred_mail_status = array();
     foreach ($starred_mail as $mail_number) {
         $mail_details_query = "select * from mail_list where mail_no='$mail_number';";
         $mail_details_output = $conn->query($mail_details_query);
@@ -24,9 +25,12 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
                     $starred_status = "bcc_starred_status";
                 }
             }
+            $starred_mail_status[$mail_number] = $starred_status;
         }
     }
     //decides who archived or deleted the mail
+    $checkbox_archive_status = array();
+    $checkbox_trash_status = array();
     foreach ($checkbox_value as $mail_number) {
         $mail_details_query = "select * from mail_list where mail_no='$mail_number';";
         $mail_details_output = $conn->query($mail_details_query);
@@ -46,6 +50,8 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
                     $trash_status = "bcc_trash_status";
                 }
             }
+            $checkbox_archive_status[$mail_number]= $archived_status;
+            $checkbox_trash_status[$mail_number] = $trash_status;
         }
     }
     //fetches data from db when option in url has Inbox as value

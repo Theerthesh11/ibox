@@ -22,6 +22,15 @@
 
 }
 
+.queries-content {
+    background-color: white;
+    height: 100vh;
+    overflow-y: scroll;
+    margin: 20px;
+    color: black;
+    padding: 20px;
+}
+
 .dashboard-content p {
     background-color: none;
     color: black
@@ -163,8 +172,8 @@ input[type="password" i] {
 }
 
 .user_list input[type="submit" i] {
-    margin: 5px 2px;
-    height: 27px;
+    margin: 1px 2px;
+    height: 25px;
 }
 
 .restricted-access {
@@ -176,10 +185,11 @@ input[type="password" i] {
 .admin_page_numbers {
     display: flex;
     justify-content: center;
+    align-items: flex-end;
 }
 
 .admin_page_numbers button {
-    margin: 20px 20px 0px 0px;
+    margin: 10px 10px 0px 10px;
     width: 25px;
     height: 25px;
     background: linear-gradient(90deg, hsla(246, 100%, 73%, 1) 61%, hsla(246, 100%, 83%, 1) 100%);
@@ -322,4 +332,10 @@ input[type="checkbox"][readonly] {
 .active-btn {
     color: rgb(114, 98, 255);
     background-color: white;
+}
+
+.view-count input[type="submit"] {
+    color: rgb(114, 98, 255);
+    background-color: white;
+    padding: 4px;
 }

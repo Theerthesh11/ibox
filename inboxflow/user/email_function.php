@@ -129,32 +129,32 @@ function usermail_as_me($sender_mail, $reciever_mail, $sender_username, $recieve
 //this function does the updation in db according to each button
 function email_options($starred_mail, $checkbox_value, $user_details_result)
 {
-    global $conn, $starred_status, $archived_status, $trash_status;
+    global $conn, $starred_mail_status, $checkbox_trash_status, $checkbox_archive_status;
     //stars a mail in inbox
     if (isset($_POST['star'])) {
         // print_r($starred_mail);
         //$starred_status = "reciever_starred_status" if user is reciever of that mail
         //$starred_status = "sender_starred_status" if user is sender of that mail
-        foreach ($starred_mail as $mail_number) {
-            echo $starred_status;
-            $star_query = "update mail_list set $starred_status ='{$user_details_result['username']}' where mail_no='$mail_number';";
+        foreach ($starred_mail_status as $mail_number => $column_name) {
+            // echo $starred_status;
+            $star_query = "update mail_list set $column_name ='{$user_details_result['username']}' where mail_no='$mail_number';";
             $star_output = $conn->query($star_query);
         }
     } //archives a mail
     elseif (isset($_POST['archive'])) {
         //$archived_status = "reciever_archived_status" if user is reciever of that mail
         //$archived_status = "sender_archived_status" if user is sender of that mail
-        foreach ($checkbox_value as $mail_number) {
-            $archive_query = "update mail_list set $archived_status ='{$user_details_result['username']}' where mail_no='$mail_number';";
+        foreach ($checkbox_archive_status as $mail_number => $column_name) {
+            $archive_query = "update mail_list set $column_name ='{$user_details_result['username']}' where mail_no='$mail_number';";
             $archive_output = $conn->query($archive_query);
         }
     }
     //moves a mail to trash
     elseif (isset($_POST['trash'])) {
-        foreach ($checkbox_value as $mail_number) {
+        foreach ($checkbox_trash_status as $mail_number => $column_name) {
             //$trash_status = "reciever_trash_status" if user is reciever of that mail
             //$trash_status = "sender_trash_status" if user is sender of that mail
-            $trash_query = "update mail_list set $trash_status ='{$user_details_result['username']}' where mail_no='$mail_number';";
+            $trash_query = "update mail_list set $column_name ='{$user_details_result['username']}' where mail_no='$mail_number';";
             $trash_output = $conn->query($trash_query);
         }
     } //marks mail as read when in unread
@@ -165,34 +165,34 @@ function email_options($starred_mail, $checkbox_value, $user_details_result)
         }
     } //unarchives a mail
     elseif (isset($_POST['unarchive'])) {
-        foreach ($checkbox_value as $mail_number) {
+        foreach ($checkbox_archive_status as $mail_number => $column_name) {
             //$archived_status = "reciever_archived_status" if user is reciever of that mail
             //$archived_status = "sender_archived_status" if user is sender of that mail
-            $unarchive_query = "update mail_list set $archived_status =NULL where mail_no='$mail_number';";
+            $unarchive_query = "update mail_list set $column_name =NULL where mail_no='$mail_number';";
             $unarchive_query_output = $conn->query($unarchive_query);
         }
     } //unstars a mail
     elseif (isset($_POST['unstar'])) {
-        foreach ($starred_mail as $mail_number) {
+        foreach ($starred_mail_status as $mail_number => $column_name) {
             //$starred_status = "reciever_starred_status" if user is reciever of that mail
             //$starred_status = "sender_starred_status" if user is sender of that mail
-            $unstar_query = "update mail_list set $starred_status =NULL where mail_no='$mail_number';";
+            $unstar_query = "update mail_list set $column_name =NULL where mail_no='$mail_number';";
             $unstar_output = $conn->query($unstar_query);
         }
     } //restores a mail from trash
     elseif (isset($_POST['restore'])) {
-        foreach ($checkbox_value as $mail_number) {
+        foreach ($checkbox_trash_status as $mail_number => $column_name) {
             //$trash_status = "reciever_trash_status" if user is reciever of that mail
             //$trash_status = "sender_trash_status" if user is sender of that mail
-            $restore_query = "update mail_list set $trash_status =NULL where mail_no='$mail_number'";
+            $restore_query = "update mail_list set $column_name =NULL where mail_no='$mail_number'";
             $restore_output = $conn->query($restore_query);
         }
     } //deletes a mail from trash
     elseif (isset($_POST['delete'])) {
-        foreach ($checkbox_value as $mail_number) {
+        foreach ($checkbox_trash_status as $mail_number => $column_name) {
             //$trash_status = "reciever_archived_status" if user is reciever of that mail
             //$trash_status = "sender_archived_status" if user is sender of that mail
-            $delete_query = "update mail_list set " . $trash_status . "='delete' where mail_no='$mail_number'";
+            $delete_query = "update mail_list set $column_name ='delete' where mail_no='$mail_number'";
             $delete_output = $conn->query($delete_query);
         }
     }

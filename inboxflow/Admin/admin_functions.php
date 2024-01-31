@@ -13,7 +13,7 @@ function readonly_or_hidden($column1, $value1, $value2)
     return $readonly;
 }
 
-function readonly($column_name)
+function read_only($column_name)
 {
     if (!empty($column_name)) {
         $readonly = "readonly";
@@ -88,10 +88,15 @@ function total_admins($addition = "")
 }
 
 //this function returns user or admin details with pagination depending on condition
-function user_list($page, $query = "select * from user_details")
+function user_list($query = "select * from user_details")
 {
-    $pagination_result = pagination($query, "order by created_on");
-    while ($user_details_result = $pagination_result[0]->fetch_assoc()) {
+    $pagination_output = pagination($query, "order by created_on");
+    if (isset($_GET['user_list_search'])) {
+        $query_parameter = 'user_list_search=' . $_GET['user_list_search'];
+    } else {
+        $query_parameter = 'page=User List';
+    }
+    while ($user_details_result = $pagination_output[0]->fetch_assoc()) {
 ?>
         <tr>
             <td style="width:5%;text-align:center;"><input type="checkbox" name="delete_access[]" value="<?= $user_details_result['username'] ?>" form="user_access"></td>
@@ -111,36 +116,27 @@ function user_list($page, $query = "select * from user_details")
             } else {
     ?>
         <td style="width:8%;text-align:center">
-            <form method='post' action='../Admin/admin_dashboard.php?page=<?= $page ?>&page_no=<?= $pagination_result[2] ?>'>
-                <input type='hidden' name='record_id' value="<?= bin2hex($user_details_result['token_id']) ?>">
-                <!-- <input type='submit' name='view_count' value='View count'> -->
-            </form>
+            <div class="view-count">
+                <form method='post' action='../Admin/admin_dashboard.php?<?= $query_parameter ?>&page_no=<?= $pagination_output[2] ?>'>
+                    <input type='hidden' name='record_id' value="<?= bin2hex($user_details_result['token_id']) ?>">
+                    <input type='submit' name='view_count' value='View count'>
+                </form>
+            </div>
         </td>
     <?php
             }
         }
-        if (isset($_GET['user_list_search'])) {
-            $query_parameter = 'user_list_search=' . $_GET['user_list_search'];
-        } else {
-            $query_parameter = 'page=User List';
-        }
         echo '</table></div>';
-        if ($pagination_result[1] > 1) {
-            echo '<div class="admin_page_numbers">';
-            echo '<button style="width:40px"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=1"><<</a></button>';
-            for ($page_no = 1; $page_no <= $pagination_result[1]; $page_no++) {
-                echo '<button><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
-            }
-            echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
-            echo "</div><br>";
+        if ($pagination_output[1] > 1) {
+            page_numbers($query_parameter, $pagination_output);
         }
     }
 
     //this function returns admin details
     function admin_details($query = "select * from admin_details")
     {
-        $pagination_result = pagination($query, "order by created_on");
-        while ($admin_details_result = $pagination_result[0]->fetch_assoc()) {
+        $pagination_output = pagination($query, "order by created_on");
+        while ($admin_details_result = $pagination_output[0]->fetch_assoc()) {
     ?>
     <tr>
         <td style="text-align: center;"><input type="checkbox" name="admin_id[]" value="<?= $admin_details_result['emp_id'] ?>"></td>
@@ -160,14 +156,8 @@ function user_list($page, $query = "select * from user_details")
             $query_parameter = 'page=Admin List';
         }
         echo '</table></div>';
-        if ($pagination_result[1] > 1) {
-            echo '<div class="admin_page_numbers">';
-            echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=1"><<</a></button>';
-            for ($page_no = 1; $page_no <= $pagination_result[1]; $page_no++) {
-                echo '<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
-            }
-            echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
-            echo "</div><br>";
+        if ($pagination_output[1] > 1) {
+            page_numbers($query_parameter, $pagination_output);
         }
     }
     //this function returns login activity of admin
@@ -191,13 +181,7 @@ function user_list($page, $query = "select * from user_details")
         }
         echo '</table></div>';
         if ($pagination_output[1] > 1) {
-            echo '<div class="admin_page_numbers">';
-            echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=1"><<</a></button>';
-            for ($page_no = 1; $page_no <=  $pagination_output[1]; $page_no++) {
-                echo '<button><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
-            }
-            echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
-            echo "</div><br>";
+            page_numbers($query_parameter, $pagination_output);
         }
     }
     function user_login_activity($query)
@@ -220,13 +204,7 @@ function user_list($page, $query = "select * from user_details")
         }
         echo '</table></div>';
         if ($pagination_output[1] > 1) {
-            echo '<div class="admin_page_numbers">';
-            echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=1"><<</a></button>';
-            for ($page_no = 1; $page_no <= $pagination_output[1]; $page_no++) {
-                echo '<button><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
-            }
-            echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>>  </a></button>';
-            echo "</div><br>";
+            page_numbers($query_parameter, $pagination_output);
         }
     }
     //this function returns individual sent and recieved mails
@@ -612,14 +590,14 @@ function user_list($page, $query = "select * from user_details")
                     </tr>
                     <tr>
                         <td><textarea name="user_complaint" readonly maxlength="100"><?= $complaint['user_complaint'] ?></textarea></td>
-                        <td><textarea name="support_reply" maxlength="100" <?= readonly($complaint['support_reply']) ?>><?= $complaint['support_reply'] ?></textarea></td>
+                        <td><textarea name="support_reply" maxlength="100" <?= read_only($complaint['support_reply']) ?>><?= $complaint['support_reply'] ?></textarea></td>
                     </tr>
                     <?php
                     if ($complaint['user_reply_1'] != NULL || $complaint['support_reply_1'] != NULL) {
                     ?>
                         <tr>
                             <td><textarea name="user_reply_1" readonly maxlength="100"><?= $complaint['user_reply_1'] ?></textarea></td>
-                            <td><textarea name="support_reply_1" maxlength="100" <?= readonly($complaint['support_reply_1']) ?>><?= $complaint['support_reply_1'] ?></textarea></td>
+                            <td><textarea name="support_reply_1" maxlength="100" <?= read_only($complaint['support_reply_1']) ?>><?= $complaint['support_reply_1'] ?></textarea></td>
                         </tr>
                     <?php
                     }
@@ -627,7 +605,7 @@ function user_list($page, $query = "select * from user_details")
                     ?>
                         <tr>
                             <td><textarea name="user_reply_2" readonly maxlength="100"><?= $complaint['user_reply_2'] ?></textarea></td>
-                            <td><textarea name="support_reply_2" maxlength="100" <?= readonly($complaint['support_reply_2']) ?>><?= $complaint['support_reply_2'] ?></textarea></td>
+                            <td><textarea name="support_reply_2" maxlength="100" <?= read_only($complaint['support_reply_2']) ?>><?= $complaint['support_reply_2'] ?></textarea></td>
                         </tr>
                     <?php
                     }
@@ -635,7 +613,7 @@ function user_list($page, $query = "select * from user_details")
                     ?>
                         <tr>
                             <td><textarea name="user_reply_3" readonly maxlength="100"><?= $complaint['user_reply_3'] ?></textarea></td>
-                            <td><textarea name="support_reply_3" maxlength="100" <?= readonly($complaint['support_reply_3']) ?>><?= $complaint['support_reply_3'] ?></textarea></td>
+                            <td><textarea name="support_reply_3" maxlength="100" <?= read_only($complaint['support_reply_3']) ?>><?= $complaint['support_reply_3'] ?></textarea></td>
                         </tr>
                     <?php
                     }
@@ -643,7 +621,7 @@ function user_list($page, $query = "select * from user_details")
                     ?>
                         <tr>
                             <td><textarea name="user_reply_4" readonly maxlength="100"><?= $complaint['user_reply_4'] ?></textarea></td>
-                            <td><textarea name="support_reply_4" maxlength="100" <?= readonly($complaint['support_reply_4']) ?>><?= $complaint['support_reply_4'] ?></textarea></td>
+                            <td><textarea name="support_reply_4" maxlength="100" <?= read_only($complaint['support_reply_4']) ?>><?= $complaint['support_reply_4'] ?></textarea></td>
                         </tr>
                     <?php
                     }
@@ -721,13 +699,7 @@ function user_list($page, $query = "select * from user_details")
         }
         echo '</table></div>';
         if ($pagination_output[1] > 1) {
-            echo '<div class="admin_page_numbers">';
-            echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=1"><<</a></button>';
-            for ($page_no = 1; $page_no <= $pagination_output[1]; $page_no++) {
-                echo '<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
-            }
-            echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . ($page_no - 1) . '">>></a></button>';
-            echo "</div><br>";
+            page_numbers($query_parameter, $pagination_output);
         }
     }
 
@@ -785,4 +757,37 @@ function user_list($page, $query = "select * from user_details")
         } else {
             return;
         }
+    }
+
+    function page_numbers($query_parameter, $pagination_output)
+    {
+        echo '<div class="admin_page_numbers">';
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=1"><<</a></button>';
+        $limit = 4;
+        $page = isset($_GET['page_no']) ? $_GET['page_no'] : 1;
+        $pages = $pagination_output[1];
+        // echo $pagination_output[1];
+        if ($pages >= 1 && $page <= $pages) {
+            $counter = 1;
+            if ($page > ($limit / 2)) {
+                echo '<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=1">1 </a></button>...';
+            }
+            for ($page_no = $page; $page_no <= $pagination_output[1]; $page_no++) {
+                if ($page >= $pagination_output[1] - 2) {
+                    for ($page_no = $pagination_output[1] - 2; $page_no <= $pagination_output[1]; $page_no++) {
+                        if ($page_no != 0) {
+                            echo '<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
+                        }
+                    }
+                } elseif ($counter < $limit) {
+                    echo '<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $page_no . '">' .  $page_no . ' </a></button>';
+                }
+                $counter++;
+            }
+            if (($page < $pages - ($limit / 2)) && $page !== $pagination_output[1]) {
+                echo '...<button ><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $pagination_output[1] . '">' .  $pagination_output[1] . ' </a></button>';
+            }
+        }
+        echo '<button style="width:40px;"><a href = "admin_dashboard.php?' . $query_parameter . '&page_no=' . $pagination_output[1] . '">>>  </a></button>';
+        echo "</div><br>";
     }
