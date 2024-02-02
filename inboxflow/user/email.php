@@ -173,7 +173,7 @@ $page_no = empty($_GET['page_no']) ? '1' : $_GET['page_no'];
                                 <!--draft option and its count-->
                                 <div><a href="email.php?page=Email&option=Draft"><button <?= isset($_GET['option']) && $_GET['option'] === 'Draft' ? 'class="option_active"' : '' ?>>Draft</button></a></div>
                                 <div class="email-count">
-                                    <?= total_mail("sender_email", "and mail_status='draft')") ?>
+                                    <?= total_mail("sender_email", "and mail_status='draft') and sender_trash_status is null") ?>
                                 </div>
                                 <!--starred option and its unread count-->
                                 <div><a href="email.php?page=Email&option=Starred"><button <?= isset($_GET['option']) && $_GET['option'] === 'Starred' ? 'class="option_active"' : '' ?>>Starred</button></a></div>
@@ -301,21 +301,20 @@ $page_no = empty($_GET['page_no']) ? '1' : $_GET['page_no'];
                                                     $action_name = "send_mail";
                                                     $action_value = "Send mail";
                                                     $readonly = "";
-                                                    echo '<div class="email-buttons">
-                                                    <div><input type="file" name="file" id="attachment">
-                                                        <div style="margin:10px"><label for="attachment" style="color:rgb(114, 98, 255);">Attach</label>
-                                                        </div>
-                                                    </div>
-                                                    </div>';
+                                                ?>
+                                                    <div class="email-buttons">
+                                                        <div><input type="file" name="file" id="attachment"><label for="attachment" style="color:rgb(114, 98, 255);margin-right:20px">Attach</label></div>
+                                                    <?php
                                                 } else {
                                                     $action_name = "reply";
                                                     $action_value = "Reply";
                                                     $readonly = "readonly";
                                                 }
-                                                ?>
-                                                <div>
-                                                    <input type="submit" name="<?= $action_name ?>" value="<?= $action_value ?>">
-                                                </div>
+                                                    ?>
+                                                    <div>
+                                                        <input type="submit" name="<?= $action_name ?>" value="<?= $action_value ?>">
+                                                    </div>
+                                                    </div>
                                         </div>
                                     </div>
                                     <label>From:</label><br>
@@ -440,7 +439,7 @@ $page_no = empty($_GET['page_no']) ? '1' : $_GET['page_no'];
                 ?>
                 <div class="dashboard-container">
                     <div class="dashboard-content">
-                        <?=alert_message("Calender will be available soon");?>
+                        <?= alert_message("Calender will be available soon"); ?>
                     </div>
                 </div>
         <?php

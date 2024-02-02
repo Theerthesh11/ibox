@@ -1,5 +1,6 @@
 <?php
 require_once "../user/email_function.php";
+require_once "../user/sendmail.php";
 //stores the value of the checked checkbox in this array
 //starred_mail array stores the value of star-check
 $starred_mail = !empty($_POST['star-check']) ? $_POST['star-check'] : array();
@@ -50,7 +51,7 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
                     $trash_status = "bcc_trash_status";
                 }
             }
-            $checkbox_archive_status[$mail_number]= $archived_status;
+            $checkbox_archive_status[$mail_number] = $archived_status;
             $checkbox_trash_status[$mail_number] = $trash_status;
         }
     }
@@ -97,7 +98,7 @@ if (isset($_GET['option']) && !isset($_POST['reply'])) {
     } //fetches data from db when option in url has Draft as value
     elseif ($_GET['option'] == "Draft" && !isset($_GET['token'])) {
         $_SESSION['last_activity'] = time();
-        $draft_query = "select * from mail_list where (sender_email='{$email}'and mail_status='draft')";
+        $draft_query = "select * from mail_list where (sender_email='$email'and mail_status='draft') and sender_trash_status is null";
         $draft_output = $conn->query($draft_query);
         if ($draft_output->num_rows > 0) {
             echo "<div class=\"table-container\"><table>";
@@ -200,14 +201,14 @@ if (isset($_POST['send']) || isset($_POST['send_mail']) && $_GET['option'] == "D
             $bcc = !empty($_POST['bcc']) ? $_POST['bcc'] : NULL;
             $cc_inbox_status = !empty($cc) ? "unread" : NULL;
             $bcc_inbox_status = !empty($bcc) ? "unread" : NULL;
-            $headers = "MIME-Version: 1.0\r\n";
-            $headers .= "Content-Type: multipart/mixed; boundary=\"boundary\"\r\n";
+            // $headers = "MIME-Version: 1.0\r\n";
+            // $headers .= "Content-Type: multipart/mixed; boundary=\"boundary\"\r\n";
 
-            // Add the message part
-            $body = "--boundary\r\n";
-            $body .= "Content-Type: text/plain; charset=iso-8859-1\r\n";
-            $body .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
-            $body .= $notes . "\r\n";
+            // // Add the message part
+            // $body = "--boundary\r\n";
+            // $body .= "Content-Type: text/plain; charset=iso-8859-1\r\n";
+            // $body .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+            // $body .= $notes . "\r\n";
             $attachment_path = null;
             $attachment_name = "";
             if (!empty($_FILES['file']['name'])) {
@@ -220,28 +221,28 @@ if (isset($_POST['send']) || isset($_POST['send_mail']) && $_GET['option'] == "D
                 }
                 // Add the attachment part
                 $attachment_path = $uploadFolder . $fileName;
-                $file_contents = file_get_contents($attachment_path);
-                $encoded_attachment = chunk_split(base64_encode($file_contents));
-
-                $body .= "--boundary\r\n";
-                $body .= "Content-Type: application/octet-stream; name=\"" . $fileName . "\"\r\n";
-                $body .= "Content-Transfer-Encoding: base64\r\n";
-                $body .= "Content-Disposition: attachment; filename=\"" . $fileName . "\"\r\n\r\n";
-                $body .= $encoded_attachment . "\r\n";
+                // $file_contents = file_get_contents($attachment_path);
+                // $encoded_attachment = chunk_split(base64_encode($file_contents));
+                sendmail($email, $sender_name, $to_mail, $recipient_name, $attachment_path, $subject, $notes);
+                // $body .= "--boundary\r\n";
+                // $body .= "Content-Type: application/octet-stream; name=\"" . $fileName . "\"\r\n";
+                // $body .= "Content-Transfer-Encoding: base64\r\n";
+                // $body .= "Content-Disposition: attachment; filename=\"" . $fileName . "\"\r\n\r\n";
+                // $body .= $encoded_attachment . "\r\n";
             }
 
             // End the boundary
             $body .= "--boundary--";
-            if (!empty($cc) && !empty($bcc)) {
-                $headers = 'From:' . $email . "\r\n";
-                $headers .= 'Reply-To: ' . $email . "\r\n";
-                $headers .= 'Cc:' . $cc . "\r\n";
-                $headers .= 'Bcc:' . $bcc . "\r\n";
-            }
+            // if (!empty($cc) && !empty($bcc)) {
+            //     $headers = 'From:' . $email . "\r\n";
+            //     $headers .= 'Reply-To: ' . $email . "\r\n";
+            //     $headers .= 'Cc:' . $cc . "\r\n";
+            //     $headers .= 'Bcc:' . $bcc . "\r\n";
+            // }
             $updated_by = $user_details_result['username']; //stores the username
             $created_by = $user_details_result['username'];
             //mail function to send the stored data
-            if (mail($to_mail, $subject, $body, $headers)) {
+            if (sendmail($email, $sender_name, $to_mail, $recipient_name, $attachment_path, $subject, $notes)) {
                 $mail_status = "sent";
                 //generates unique mail_no for each mail
                 if (!isset($_GET['mailno'])) {
